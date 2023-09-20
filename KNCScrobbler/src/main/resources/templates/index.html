@@ -1,0 +1,113 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head> 
+    <title>KNC Scrobbler</title> 
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<script
+	src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.js"></script>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/core.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/md5.js"></script>
+	
+	<script>
+		// api url
+		const api_url = 
+			  "https://wknc.org/wp-json/wknc/v1/now-playing?station=1";
+			  
+		const api_key = "23a4290148e4069d3dbce24cade6b491";
+		const api_secret = "ce54995d20345dad6ac7c1c72276cfd5";
+		
+		startSession();
+		update();
+		setInterval(update, 5000);
+				
+		
+		
+		// Defining async function
+		async function getCurrentSong() {
+		   
+			// Storing response
+			const response = await fetch(api_url);
+		   
+			// Storing data in form of JSON
+			var data = await response.json();
+			console.log(data);
+
+			//show(data);
+			return data;
+		}
+
+
+		async function scrobbleSong(data){
+			const options = {
+				method: "POST",
+				body: data
+			}
+			console.log("songData: " + data);
+			let response = await fetch("api/song/", options);
+			console.log(response);
+		}
+
+		
+		async function update(){
+			const queryString = window.location.search;
+			const urlParams = new URLSearchParams(queryString);
+			var songData = await getCurrentSong();
+			token = urlParams.get('token');
+
+			if((songData.song != document.getElementById("songname").innerHTML || songData.artist != document.getElementById("artist").innerHTML) && token != null){
+				scrobbleSong(JSON.stringify(songData));
+			}
+			show(songData);
+
+		}
+		
+
+		
+		async function startSession(){
+			const queryString = window.location.search;
+			const urlParams = new URLSearchParams(queryString);
+			const token = urlParams.get('token');
+			
+			if(token != null){
+			
+				//var api_signature = CryptoJS.MD5("api_key" + api_key + "methodauth.getSessiontoken" + token + api_secret).toString();
+				
+				//let response = await fetch("https://ws.audioscrobbler.com/2.0/?method=auth.getSession&api_key=" + api_key + "&token=" + token + "&api_sig=" + api_signature + "&format=json");
+				//let data = await response.json();
+				
+				let response = await fetch("api/token/" + token);
+				console.log(response);
+				document.getElementById("lb").style.display="none";
+				document.getElementById("linked").innerHTML = "Account Linked!";
+			}
+			return null;
+		}
+		
+		
+		function show(data) {				
+			document.getElementById("songname").innerHTML = data.song;
+			document.getElementById("artist").innerHTML = data.artist;
+		}
+		
+		function linkAccount(){
+			window.open("http://www.last.fm/api/auth/?api_key=23a4290148e4069d3dbce24cade6b491&cb=http://localhost:8080", '_self');
+		}
+		
+	</script>
+	
+	
+	<div>
+		<video controls autoplay name="media">
+			<source src="https://ais-edge105-live365-dal02.cdnstream.com/a45877" type="audio/mpeg"> == $0
+		</video>
+		<p id="songname"></p>
+		<p id="artist"></p>
+		<button id=lb type="button" onclick="linkAccount()">Link last.fm Account </button>
+		<p id="linked"></p>
+
+	</div>
+	
+</body>
+</html>
