@@ -3,6 +3,8 @@ package com.example.demo;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import de.umass.lastfm.Session;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,16 +24,15 @@ public class APIController {
     }
     
     @GetMapping ( BASE_PATH + "token/{token}" )
-    public String startSession(@PathVariable ("token") final String token) {
-        SessionManager.getInstance().createSession( token );
-        
-        return "IT WORKED OK";
+    public Session startSession(@PathVariable ("token") final String token) {
+        return SessionManager.createSession( token );
+
 
     }
     
     @PostMapping ( BASE_PATH + "song/" )
     public ResponseEntity<String> scrobbleSong(@RequestBody  String info) {
-        SessionManager.getInstance().scrobbleSong( info );
+        SessionManager.scrobbleSong( info );
         return new ResponseEntity<String>( HttpStatus.OK );
     }
     

@@ -18,9 +18,15 @@
 		const api_key = "23a4290148e4069d3dbce24cade6b491";
 		const api_secret = "ce54995d20345dad6ac7c1c72276cfd5";
 		
-		startSession();
-		update();
-		setInterval(update, 5000);
+		async function main(){
+			let session = await startSession();
+			update(session);
+			setInterval(function() {update(session); }, 5000);
+		}
+		
+		main();
+
+		
 				
 		
 		
@@ -32,32 +38,35 @@
 		   
 			// Storing data in form of JSON
 			var data = await response.json();
-			console.log(data);
+			//console.log(data);
 
 			//show(data);
 			return data;
 		}
 
 
-		async function scrobbleSong(data){
+		async function scrobbleSong(data, session){
+			
+			var combined = Object.assign({}, data, session);
+			var combinedString = JSON.stringify(combined)
 			const options = {
 				method: "POST",
-				body: data
+				body: combinedString
 			}
-			console.log("songData: " + data);
+			console.log("songData: " + combinedString);
 			let response = await fetch("api/song/", options);
-			console.log(response);
+			//console.log(response);
 		}
 
 		
-		async function update(){
+		async function update(session){
 			const queryString = window.location.search;
 			const urlParams = new URLSearchParams(queryString);
 			var songData = await getCurrentSong();
 			token = urlParams.get('token');
 
 			if((songData.song != document.getElementById("songname").innerHTML || songData.artist != document.getElementById("artist").innerHTML) && token != null){
-				scrobbleSong(JSON.stringify(songData));
+				scrobbleSong(songData, session);
 			}
 			show(songData);
 
@@ -78,9 +87,11 @@
 				//let data = await response.json();
 				
 				let response = await fetch("api/token/" + token);
-				console.log(response);
+				j = await response.json();
+				//console.log(j);
 				document.getElementById("lb").style.display="none";
 				document.getElementById("linked").innerHTML = "Account Linked!";
+				return j;
 			}
 			return null;
 		}

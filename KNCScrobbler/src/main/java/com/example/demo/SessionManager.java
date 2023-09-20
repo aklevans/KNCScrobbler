@@ -18,15 +18,12 @@ import java.util.Properties;
 public class SessionManager {
 
     
-    private String key;
+    private static String key;
     
-    private String secret;
+    private static String secret;
+
     
-    private Session session;
-    
-    private static SessionManager instance = new SessionManager();
-    
-    public SessionManager() {
+    private static void loadProperties() {
         try (InputStream input = new FileInputStream("src/main/resources/static/config.properties")) {
 
             Properties prop = new Properties();
@@ -44,21 +41,15 @@ public class SessionManager {
             ex.printStackTrace();
         }
     }
+
     
-    public static SessionManager getInstance() {
-        return instance;
+    
+    public static Session createSession(String token) {
+    	loadProperties();
+        return Authenticator.getSession( token, key, secret );
     }
     
-    public Session getSession() {
-        return session;
-    }
-    
-    public Session createSession(String token) {
-        session = Authenticator.getSession( token, key, secret );
-        return session;
-    }
-    
-    public void scrobbleSong(String title, String artist) {
+    public static void scrobbleSong(String title, String artist, Session session) {
 //        ScrobbleResult result = Track.updateNowPlaying(artist, title, session);
 //        System.out.println("ok: " + (result.isSuccessful() && !result.isIgnored()));
         
@@ -76,9 +67,9 @@ public class SessionManager {
         
     }
     
-    public void scrobbleSong(String json) {
+    public static void scrobbleSong(String json) {
         Gson g = new Gson();
-        Song s = g.fromJson(json, Song.class);
-        scrobbleSong( s.getSong() , s.getArtist());
+        ScrobbleRequest s = g.fromJson(json, ScrobbleRequest.class);
+        scrobbleSong( s.getSong() , s.getArtist(), s.getSession());
     }
 }
