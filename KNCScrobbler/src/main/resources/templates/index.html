@@ -60,7 +60,7 @@
 
 
 			update(session, 0);
-			setInterval(function() {update(session, 40000); }, 10000);
+			setInterval(function() {update(session, 50000); }, 1000);
 		}
 		
 		main();
@@ -144,18 +144,18 @@
 			const queryString = window.location.search;
 			const urlParams = new URLSearchParams(queryString);
 			const token = urlParams.get('token');
-			
+			window.history.replaceState({}, document.title, "/");
+
 			if(document.cookie != null && document.cookie != "" && document.cookie != "null") {
 				var cookie = JSON.parse(document.cookie);
 				document.getElementById("lb").style.display="none";
 				document.getElementById("linked").innerHTML = cookie.username + "'s account linked!";
 				document.getElementById("reset").style.display="inline";
 
-				console.log(document.cookie);
+				//console.log(document.cookie);
 				return cookie;
 			}
 			else if(token != null){
-				window.history.replaceState({}, document.title, "/");
 
 				//var api_signature = CryptoJS.MD5("api_key" + api_key + "methodauth.getSessiontoken" + token + api_secret).toString();
 				

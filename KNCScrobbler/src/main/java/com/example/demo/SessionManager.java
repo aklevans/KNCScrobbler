@@ -49,7 +49,11 @@ public class SessionManager {
     }
     
     public static Track getLastPlayed(Session session) {
-    	return (Track)User.getRecentTracks( session.getUsername(), 1, 1, key ).getPageResults().toArray()[0];
+    	try {
+    		return (Track)User.getRecentTracks( session.getUsername(), 1, 1, key ).getPageResults().toArray()[0];
+    	} catch(ArrayIndexOutOfBoundsException e) {
+    		return null;
+    	}
     }
     
     public static void scrobbleSong(String title, String artist, Session session) {
@@ -60,9 +64,12 @@ public class SessionManager {
         //check if song has changed 
         // NOTE: this assumes the same song will never be played twice in a row!!!!! 
         Track t = getLastPlayed(session);
-        if(!t.getName().equals( title ) || !t.getArtist().equals( artist )) {
-        	System.out.println("old Artist:" + t.getArtist() + " New Artist:" + artist);
-        	System.out.println("old Song:" + t.getName() + " New Song:" + title);
+        if(t == null || !t.getName().equals( title ) || !t.getArtist().equals( artist )) {
+        	if (t != null) {
+        		System.out.println("old Artist:" + t.getArtist() + " New Artist:" + artist);
+            	System.out.println("old Song:" + t.getName() + " New Song:" + title);
+        	}
+        	
             int now = (int) (System.currentTimeMillis() / 1000);
             ScrobbleResult result2 = Track.scrobble(artist, title, now, session);
             System.out.println("ok: " + (result2.isSuccessful() && !result2.isIgnored()));
