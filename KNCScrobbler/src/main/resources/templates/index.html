@@ -3,10 +3,19 @@
 <head> 
     <title>KNC Scrobbler</title> 
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <style>
+		.center {
+ 			margin: auto;
+		  width: 50%;
+		  padding: 150px;
+		  text-align: center;
+		  font-family: sans-serif;
+		}
+	</style>
 </head>
 <script
 	src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.js"></script>
-<body>
+<body style="background-color:aquamarine">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/core.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/md5.js"></script>
 	
@@ -16,12 +25,11 @@
 			  "https://wknc.org/wp-json/wknc/v1/now-playing?station=1";
 			  
 		const api_key = "23a4290148e4069d3dbce24cade6b491";
-		const api_secret = "ce54995d20345dad6ac7c1c72276cfd5";
 		
 		async function main(){
 			let session = await startSession();
-			update(session);
-			setInterval(function() {update(session); }, 5000);
+			update(session, 0);
+			setInterval(function() {update(session, 30000); }, 10000);
 		}
 		
 		main();
@@ -43,6 +51,17 @@
 			//show(data);
 			return data;
 		}
+		
+		async function getAlbumCover(songdata) {
+			let response = await fetch("http://ws.audioscrobbler.com/2.0/?method=track.getInfo&api_key=" + api_key + "&artist=" + songdata.artist + "&track=" + songdata.song + "&format=json");
+			var dat = await response.json();
+			//JSON.parse(dat.track.album.image)[2].text
+			var propertyName = '#text'
+			//console.log(dat.track.album.image[0][propertyName]);
+			//console.log(dat.track.album.image[2].#text);
+			document.getElementById("cover").src = dat.track.album.image[3][propertyName];
+			
+		}
 
 
 		async function scrobbleSong(data, session){
@@ -53,22 +72,36 @@
 				method: "POST",
 				body: combinedString
 			}
-			console.log("songData: " + combinedString);
+			//console.log("songData: " + combinedString);
 			let response = await fetch("api/song/", options);
 			//console.log(response);
 		}
 
 		
-		async function update(session){
+		async function update(session, delay){
 			const queryString = window.location.search;
 			const urlParams = new URLSearchParams(queryString);
 			var songData = await getCurrentSong();
+			//console.log(songData);
+			
+			//account for stream lagging behind spinitron
+			setTimeout(function() {
+				
+			}, delay);
+			
 			token = urlParams.get('token');
 
-			if((songData.song != document.getElementById("songname").innerHTML || songData.artist != document.getElementById("artist").innerHTML) && token != null){
+
+			var lastName = document.getElementById("songname").innerText;
+			var lastArtist = document.getElementById("artist").innerHTML;
+			if((songData.song !== document.getElementById("songname").innerText || songData.artist !== document.getElementById("artist").innerText) && token != null){
 				scrobbleSong(songData, session);
+				console.log("scrobble");
+				//show(songData);
 			}
+			
 			show(songData);
+			getAlbumCover(songData);
 
 		}
 		
@@ -98,25 +131,33 @@
 		
 		
 		function show(data) {				
-			document.getElementById("songname").innerHTML = data.song;
-			document.getElementById("artist").innerHTML = data.artist;
+			document.getElementById("songname").innerText = data.song;
+			document.getElementById("artist").innerText = data.artist;
 		}
 		
 		function linkAccount(){
-			window.open("http://www.last.fm/api/auth/?api_key=23a4290148e4069d3dbce24cade6b491&cb=http://localhost:8080", '_self');
+			
+			window.open("http://www.last.fm/api/auth/?api_key=" + api_key + "&cb=" + window.location.href, '_self');
 		}
 		
 	</script>
 	
 	
-	<div>
-		<video controls autoplay name="media">
+	<div class="center">
+		<b style="font-size: 30px;">KNC Scrobbler!</b>
+		<br/>
+		<br/>
+		<img id="cover">
+		<br/>
+		<audio controls autoplay name="media">
 			<source src="https://ais-edge105-live365-dal02.cdnstream.com/a45877" type="audio/mpeg"> == $0
-		</video>
-		<p id="songname"></p>
+		</audio>
+		<br/>
+		<br/>
+		<b id="songname"></b>
 		<p id="artist"></p>
 		<button id=lb type="button" onclick="linkAccount()">Link last.fm Account </button>
-		<p id="linked"></p>
+		<p id="linked" style="color:gray"></p>
 
 	</div>
 	

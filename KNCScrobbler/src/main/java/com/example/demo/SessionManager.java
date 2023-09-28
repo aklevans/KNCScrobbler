@@ -3,7 +3,6 @@ package com.example.demo;
 import com.google.gson.Gson;
 
 import de.umass.lastfm.Authenticator;
-import de.umass.lastfm.PaginatedResult;
 import de.umass.lastfm.Session;
 import de.umass.lastfm.Track;
 import de.umass.lastfm.User;
@@ -49,19 +48,24 @@ public class SessionManager {
         return Authenticator.getSession( token, key, secret );
     }
     
+    public static Track getLastPlayed(Session session) {
+    	return (Track)User.getRecentTracks( session.getUsername(), 1, 1, key ).getPageResults().toArray()[0];
+    }
+    
     public static void scrobbleSong(String title, String artist, Session session) {
 //        ScrobbleResult result = Track.updateNowPlaying(artist, title, session);
 //        System.out.println("ok: " + (result.isSuccessful() && !result.isIgnored()));
         
         
         //check if song has changed 
-        // NOTE: this assumes the same song will never be played twice in a row!!!!!
-
-        Track t = (Track)User.getRecentTracks( session.getUsername(), 1, 1, key ).getPageResults().toArray()[0];
+        // NOTE: this assumes the same song will never be played twice in a row!!!!! 
+        Track t = getLastPlayed(session);
         if(!t.getName().equals( title ) || !t.getArtist().equals( artist )) {
+        	System.out.println("old Artist:" + t.getArtist() + " New Artist:" + artist);
+        	System.out.println("old Song:" + t.getName() + " New Song:" + title);
             int now = (int) (System.currentTimeMillis() / 1000);
-            ScrobbleResult result = Track.scrobble(artist, title, now, session);
-            System.out.println("ok: " + (result.isSuccessful() && !result.isIgnored()));
+            ScrobbleResult result2 = Track.scrobble(artist, title, now, session);
+            System.out.println("ok: " + (result2.isSuccessful() && !result2.isIgnored()));
         }
         
         
@@ -70,6 +74,8 @@ public class SessionManager {
     public static void scrobbleSong(String json) {
         Gson g = new Gson();
         ScrobbleRequest s = g.fromJson(json, ScrobbleRequest.class);
-        scrobbleSong( s.getSong() , s.getArtist(), s.getSession());
+        scrobbleSong( s.getSong() , s.getArtist(), s.getSession() );
     }
+    
+
 }
