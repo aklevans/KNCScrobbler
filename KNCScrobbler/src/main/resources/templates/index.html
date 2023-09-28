@@ -19,7 +19,31 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/core.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/md5.js"></script>
 	
-	<script>
+
+	
+	
+	<div class="center">
+		<b style="font-size: 30px;">KNC Scrobbler!</b>
+		<br/>
+		<br/>
+		<img id="cover">
+		<br/>
+		<audio controls autoplay name="media">
+			<source src="https://ais-edge105-live365-dal02.cdnstream.com/a45877" type="audio/mpeg"> == $0
+		</audio>
+		<br/>
+		<br/>
+		<b id="songname"></b>
+		<p id="artist"></p>
+		<button id=lb type="button" onclick="linkAccount()">Link last.fm Account </button>
+		
+		<p id="linked" style="color:gray"></p>
+		<button id=reset type="button" onclick="reset()">Unlink account</button>
+
+
+	</div>
+	
+		<script>
 		// api url
 		const api_url = 
 			  "https://wknc.org/wp-json/wknc/v1/now-playing?station=1";
@@ -27,15 +51,22 @@
 		const api_key = "23a4290148e4069d3dbce24cade6b491";
 		
 		async function main(){
-			let session = await startSession();
+			var session;
+			session = await startSession();
+			
+			
+			
+			
+
+
 			update(session, 0);
-			setInterval(function() {update(session, 30000); }, 10000);
+			setInterval(function() {update(session, 40000); }, 10000);
 		}
 		
 		main();
 
 		
-				
+		
 		
 		
 		// Defining async function
@@ -94,7 +125,7 @@
 
 			var lastName = document.getElementById("songname").innerText;
 			var lastArtist = document.getElementById("artist").innerHTML;
-			if((songData.song !== document.getElementById("songname").innerText || songData.artist !== document.getElementById("artist").innerText) && token != null){
+			if((songData.song !== document.getElementById("songname").innerText || songData.artist !== document.getElementById("artist").innerText) && (token != null || session != null)) {
 				scrobbleSong(songData, session);
 				console.log("scrobble");
 				//show(songData);
@@ -108,12 +139,24 @@
 
 		
 		async function startSession(){
+			document.getElementById("reset").style.display="none";
+			
 			const queryString = window.location.search;
 			const urlParams = new URLSearchParams(queryString);
 			const token = urlParams.get('token');
 			
-			if(token != null){
-			
+			if(document.cookie != null && document.cookie != "" && document.cookie != "null") {
+				var cookie = JSON.parse(document.cookie);
+				document.getElementById("lb").style.display="none";
+				document.getElementById("linked").innerHTML = cookie.username + "'s account linked!";
+				document.getElementById("reset").style.display="inline";
+
+				console.log(document.cookie);
+				return cookie;
+			}
+			else if(token != null){
+				window.history.replaceState({}, document.title, "/");
+
 				//var api_signature = CryptoJS.MD5("api_key" + api_key + "methodauth.getSessiontoken" + token + api_secret).toString();
 				
 				//let response = await fetch("https://ws.audioscrobbler.com/2.0/?method=auth.getSession&api_key=" + api_key + "&token=" + token + "&api_sig=" + api_signature + "&format=json");
@@ -123,7 +166,10 @@
 				j = await response.json();
 				//console.log(j);
 				document.getElementById("lb").style.display="none";
-				document.getElementById("linked").innerHTML = "Account Linked!";
+				document.getElementById("linked").innerHTML = j.username + "'s account linked!";
+				document.getElementById("reset").style.display="inline";
+				document.cookie = JSON.stringify(j);
+
 				return j;
 			}
 			return null;
@@ -140,26 +186,18 @@
 			window.open("http://www.last.fm/api/auth/?api_key=" + api_key + "&cb=" + window.location.href, '_self');
 		}
 		
-	</script>
-	
-	
-	<div class="center">
-		<b style="font-size: 30px;">KNC Scrobbler!</b>
-		<br/>
-		<br/>
-		<img id="cover">
-		<br/>
-		<audio controls autoplay name="media">
-			<source src="https://ais-edge105-live365-dal02.cdnstream.com/a45877" type="audio/mpeg"> == $0
-		</audio>
-		<br/>
-		<br/>
-		<b id="songname"></b>
-		<p id="artist"></p>
-		<button id=lb type="button" onclick="linkAccount()">Link last.fm Account </button>
-		<p id="linked" style="color:gray"></p>
+		function reset(){
+			document.cookie = null;
+			document.getElementById("lb").style.display="inline";
+			document.getElementById("linked").innerText = "";
+			document.getElementById("reset").style.display="none";
+			
 
-	</div>
+
+
+		}
+		
+	</script>
 	
 </body>
 </html>
