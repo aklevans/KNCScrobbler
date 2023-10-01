@@ -50,17 +50,13 @@
 			  
 		const api_key = "23a4290148e4069d3dbce24cade6b491";
 		
+		const default_image = "https://wknc.org/wp-content/uploads/2020/10/wknc881-bow.jpg";
+		
 		async function main(){
 			var session;
 			session = await startSession();
-			
-			
-			
-			
-
-
 			update(session, 0);
-			setInterval(function() {update(session, 50000); }, 1000);
+			setInterval(function() {update(session, 55000); }, 60000);
 		}
 		
 		main();
@@ -83,14 +79,22 @@
 			return data;
 		}
 		
-		async function getAlbumCover(songdata) {
+		async function setAlbumCover(songdata) {
 			let response = await fetch("http://ws.audioscrobbler.com/2.0/?method=track.getInfo&api_key=" + api_key + "&artist=" + songdata.artist + "&track=" + songdata.song + "&format=json");
 			var dat = await response.json();
 			//JSON.parse(dat.track.album.image)[2].text
 			var propertyName = '#text'
 			//console.log(dat.track.album.image[0][propertyName]);
 			//console.log(dat.track.album.image[2].#text);
-			document.getElementById("cover").src = dat.track.album.image[3][propertyName];
+			
+			try{
+				document.getElementById("cover").src = dat.track.album.image[3][propertyName];
+			} catch( err ){
+				document.getElementById("cover").src = default_image;
+			}
+				
+			
+			
 			
 		}
 
@@ -114,25 +118,26 @@
 			const urlParams = new URLSearchParams(queryString);
 			var songData = await getCurrentSong();
 			//console.log(songData);
-			
-			//account for stream lagging behind spinitron
-			setTimeout(function() {
-				
-			}, delay);
-			
-			token = urlParams.get('token');
+						
 
+			
 
 			var lastName = document.getElementById("songname").innerText;
-			var lastArtist = document.getElementById("artist").innerHTML;
-			if((songData.song !== document.getElementById("songname").innerText || songData.artist !== document.getElementById("artist").innerText) && (token != null || session != null)) {
+			var lastArtist = document.getElementById("artist").innerText;
+			if((songData.song !== document.getElementById("songname").innerText || songData.artist !== document.getElementById("artist").innerText) &&  session != null) {
+				//account for stream lagging behind spinitron
+				setTimeout(function() {
+					
+				}, delay);
 				scrobbleSong(songData, session);
 				console.log("scrobble");
 				//show(songData);
 			}
 			
+			
+			
 			show(songData);
-			getAlbumCover(songData);
+			setAlbumCover(songData);
 
 		}
 		
