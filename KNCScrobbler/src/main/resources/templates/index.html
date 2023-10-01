@@ -36,7 +36,6 @@
 		<b id="songname"></b>
 		<p id="artist"></p>
 		<button id=lb type="button" onclick="linkAccount()">Link last.fm Account </button>
-		
 		<p id="linked" style="color:gray"></p>
 		<button id=reset type="button" onclick="reset()">Unlink account</button>
 
@@ -45,12 +44,17 @@
 	
 		<script>
 		// api url
-		const api_url = 
+		const api_url_1 = 
 			  "https://wknc.org/wp-json/wknc/v1/now-playing?station=1";
+			  
+		const api_url_2 = 
+			  "https://wknc.org/wp-json/wknc/v1/now-playing?station=2";
 			  
 		const api_key = "23a4290148e4069d3dbce24cade6b491";
 		
 		const default_image = "https://wknc.org/wp-content/uploads/2020/10/wknc881-bow.jpg";
+		
+		var api_url = api_url_1;
 		
 		async function main(){
 			var session;
@@ -79,6 +83,15 @@
 			return data;
 		}
 		
+		function changeChannel(channel){
+			if(chanel === "HD1"){
+				api_url = api_url_1;
+			}
+			else api_url = api_url_2;
+			
+		}
+		
+		
 		async function setAlbumCover(songdata) {
 			let response = await fetch("http://ws.audioscrobbler.com/2.0/?method=track.getInfo&api_key=" + api_key + "&artist=" + songdata.artist + "&track=" + songdata.song + "&format=json");
 			var dat = await response.json();
@@ -92,10 +105,7 @@
 			} catch( err ){
 				document.getElementById("cover").src = default_image;
 			}
-				
-			
-			
-			
+
 		}
 
 
@@ -119,16 +129,14 @@
 			var songData = await getCurrentSong();
 			//console.log(songData);
 						
-
+			setTimeout(function() {}, delay);
 			
 
 			var lastName = document.getElementById("songname").innerText;
 			var lastArtist = document.getElementById("artist").innerText;
 			if((songData.song !== document.getElementById("songname").innerText || songData.artist !== document.getElementById("artist").innerText) &&  session != null) {
 				//account for stream lagging behind spinitron
-				setTimeout(function() {
-					
-				}, delay);
+
 				scrobbleSong(songData, session);
 				console.log("scrobble");
 				//show(songData);

@@ -67,8 +67,8 @@ public class SessionManager {
         Track t = getLastPlayed(session);
         if(t != null && !t.getName().trim().equals( title ) || !t.getArtist().trim().equals( artist )) {
 
-    		System.out.println("old Artist:" + t.getArtist() + " New Artist:" + artist);
-        	System.out.println("old Song:" + t.getName() + " New Song:" + title);
+    		System.out.println("old Artist: \"" + t.getArtist() + "\" New Artist: \"" + artist + "\"");
+        	System.out.println("old Song: \"" + t.getName() + "\" New Song: \"" + title + "\"");
         	
         	//scrobble last track that was playing
         	if(t.isNowPlaying()) {
