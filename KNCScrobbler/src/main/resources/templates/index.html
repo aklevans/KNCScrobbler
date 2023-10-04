@@ -15,7 +15,7 @@
 </head>
 <script
 	src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.js"></script>
-<body style="background-color:aquamarine">
+<body style="background-color:rgb(0, 0, 0)">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/core.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/md5.js"></script>
 	
@@ -23,10 +23,10 @@
 	
 	
 	<div class="center">
-		<b style="font-size: 30px;">KNC Scrobbler!</b>
+		<b style="font-size: 30px; color: rgb(213, 16, 7);">KNC Scrobbler!</b>
 		<br/>
 		<br/>
-		<img id="cover">
+		<a target="_blank" id="imglink"><img id="cover"></a>
 		<br/>
 		
 		<iframe src="src/main/resources/250-milliseconds-of-silence.mp3" allow="autoplay" id="audio" style="display: none"></iframe>
@@ -35,10 +35,13 @@
 		</audio>
 		<br/>
 		<br/>
-		<b id="songname"></b>
-		<p id="artist"></p>
+		<a style="color:rgb(255, 255, 255); text-decoration: none;"  target="_blank" id="songlink"><b id="songname"></b></a>
+		<a style="color:rgb(255, 255, 255); text-decoration: none;"  target="_blank" id="artistlink"> <p id="artist"></p> </a>
+		<br/>
 		<button id=lb type="button" onclick="linkAccount()">Link last.fm Account </button>
-		<p id="linked" style="color:gray"></p>
+		<a id="linked" target="_blank" style="color: gray; "></a>
+		<br/>
+		<br/>
 		<button id=reset type="button" onclick="reset()">Unlink account</button>
 
 
@@ -65,7 +68,7 @@
 			var session;
 			session = await startSession();
 			update(session, 0);
-			setInterval(function() {update(session, 55000); }, 60000);
+			setInterval(function() {update(session, 40000); }, 50000);
 		}
 		
 		main();
@@ -97,24 +100,30 @@
 		}
 		
 		
-		async function setAlbumCover(songdata) {
+		async function showSongData(songdata) {
 			let response = await fetch("http://ws.audioscrobbler.com/2.0/?method=track.getInfo&api_key=" + api_key + "&artist=" + songdata.artist + "&track=" + songdata.song + "&format=json");
 			var dat = await response.json();
 			console.log(dat);
+			
+			document.getElementById("songname").innerText = songdata.song;
+			document.getElementById("artist").innerText = songdata.artist;
+			document.getElementById("songlink").href = dat.track.url;
+			document.getElementById("artistlink").href = dat.track.artist.url;
+			
 			//JSON.parse(dat.track.album.image)[2].text
 			var propertyName = '#text'
 			//url = dat.track.album.image[3][propertyName];
 			//console.log(url);
 			//console.log(dat.track.album.image[0][propertyName]);
 			//console.log(dat.track.album.image[2].#text);
-			
+			document.getElementById("imglink").href = dat.track.url;
 			try{
 				url = dat.track.album.image[3][propertyName];
 				console.log(url.length);
-				if( url === null || url.length === 0){
+				if( url == null || url.length === 0){
 					document.getElementById("cover").src = default_image;
 				}
-				document.getElementById("cover").src = url;
+				else document.getElementById("cover").src = url;
 				console.log(url);
 			} catch( err ){
 				document.getElementById("cover").src = default_image;
@@ -158,8 +167,7 @@
 			
 			
 			
-			show(songData);
-			setAlbumCover(songData);
+			showSongData(songData);
 
 		}
 		
@@ -177,6 +185,7 @@
 				var cookie = JSON.parse(document.cookie);
 				document.getElementById("lb").style.display="none";
 				document.getElementById("linked").innerHTML = cookie.username + "'s account linked!";
+				document.getElementById("linked").href = "http://last.fm/user/" + cookie.username;
 				document.getElementById("reset").style.display="inline";
 
 				//console.log(document.cookie);
@@ -191,6 +200,7 @@
 				//console.log(j);
 				document.getElementById("lb").style.display="none";
 				document.getElementById("linked").innerHTML = j.username + "'s account linked!";
+				document.getElementById("linked").href = "http://last.fm/user/" + j.username;
 				document.getElementById("reset").style.display="inline";
 				document.cookie = JSON.stringify(j);
 
@@ -199,11 +209,6 @@
 			return null;
 		}
 		
-		
-		function show(data) {				
-			document.getElementById("songname").innerText = data.song;
-			document.getElementById("artist").innerText = data.artist;
-		}
 		
 		function linkAccount(){
 			
