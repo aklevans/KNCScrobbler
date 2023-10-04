@@ -72,10 +72,12 @@ public class SessionManager {
         //check if song has changed 
         // NOTE: this assumes the same song will never be played twice iS a row!!!!! 
         Track t = getLastPlayed(session);
-        if(t != null && !t.getName().trim().equals( title ) || !t.getArtist().trim().equals( artist )) {
-
+        if(t != null && (!t.getName().trim().toUpperCase().equals( title.toUpperCase() ) || !t.getArtist().trim().toUpperCase().equals( artist.toUpperCase() )) ) {
+        	
     		System.out.println("old Artist: [" + t.getArtist() + "] New Artist: [" + artist + "]");
+    		System.out.println("Artist Match:" + t.getArtist().trim().equals( artist.toUpperCase() ));
         	System.out.println("old Song: [" + t.getName() + "] New Song: [" + title + "]");
+        	System.out.println("Song Match:" + t.getName().trim().toUpperCase().equals( title.toUpperCase() ));
         	
         	//scrobble last track that was playing
         	if(t.isNowPlaying()) {
