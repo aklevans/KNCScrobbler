@@ -28,24 +28,31 @@ public class SessionManager {
 
     
     
-    public static Session createSession(String token) {
+    public static String createSession(String token) {
+    	String key;
+        String secret;
         try (InputStream input = new FileInputStream("src/main/resources/static/config.properties")) {
 
             Properties prop = new Properties();
 
             // load a properties file
             prop.load(input);
-
+            
             // get the property value and print it out
-            String key = prop.getProperty( "key");
-            String secret = prop.getProperty( "secret" );
+            key = prop.getProperty( "key");
+            secret = prop.getProperty( "secret" );
 
-            return Authenticator.getSession( token, key, secret );
 
         } catch (IOException ex) {
             ex.printStackTrace();
-            return null;
+            key = System.getenv("KEY");
+            secret = System.getenv("SECRET");
+            
+            
         }
+        
+        return new Gson().toJson(Authenticator.getSession( token, key, secret ));
+
         
     }
     
@@ -67,8 +74,8 @@ public class SessionManager {
         Track t = getLastPlayed(session);
         if(t != null && !t.getName().trim().equals( title ) || !t.getArtist().trim().equals( artist )) {
 
-    		System.out.println("old Artist: \"" + t.getArtist() + "\" New Artist: \"" + artist + "\"");
-        	System.out.println("old Song: \"" + t.getName() + "\" New Song: \"" + title + "\"");
+    		System.out.println("old Artist: [" + t.getArtist() + "] New Artist: [" + artist + "]");
+        	System.out.println("old Song: [" + t.getName() + "] New Song: [" + title + "]");
         	
         	//scrobble last track that was playing
         	if(t.isNowPlaying()) {
@@ -92,5 +99,8 @@ public class SessionManager {
         startNext( s.getSong().trim() , s.getArtist().trim(), s.getSession() );
     }
     
+    public static String getHello() {
+    	return "hello";
+    }
 
 }

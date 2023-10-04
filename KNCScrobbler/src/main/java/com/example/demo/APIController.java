@@ -3,6 +3,8 @@ package com.example.demo;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.gson.Gson;
+
 import de.umass.lastfm.Session;
 
 import org.springframework.http.HttpStatus;
@@ -24,9 +26,8 @@ public class APIController {
     }
     
     @GetMapping ( BASE_PATH + "token/{token}" )
-    public Session startSession(@PathVariable ("token") final String token) {
+    public String startSession(@PathVariable ("token") final String token) {
         return SessionManager.createSession( token );
-
 
     }
     
@@ -36,7 +37,10 @@ public class APIController {
         return new ResponseEntity<String>( HttpStatus.OK );
     }
     
-    
+    @GetMapping("/hello")
+    public String hello() {
+    	return SessionManager.getHello();
+    }
     
     
 

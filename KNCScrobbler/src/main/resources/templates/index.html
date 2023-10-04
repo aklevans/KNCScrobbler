@@ -55,7 +55,7 @@
 		// idk if i can legally use this image
 		//const default_image = "https://wknc.org/wp-content/uploads/2020/10/wknc881-bow.jpg";
 		
-		const default_image = "https://github.com/aklevans/KNCScrobbler/blob/main/KNCScrobbler/src/main/resources/images/white%20square.PNG?raw=true";
+		const default_image = "https://github.com/aklevans/KNCScrobbler/blob/main/KNCScrobbler/src/main/resources/images/white%20square%201.png?raw=true";
 		
 		var api_url = api_url_1;
 		
@@ -98,13 +98,22 @@
 		async function setAlbumCover(songdata) {
 			let response = await fetch("http://ws.audioscrobbler.com/2.0/?method=track.getInfo&api_key=" + api_key + "&artist=" + songdata.artist + "&track=" + songdata.song + "&format=json");
 			var dat = await response.json();
+			console.log(dat);
 			//JSON.parse(dat.track.album.image)[2].text
 			var propertyName = '#text'
+			//url = dat.track.album.image[3][propertyName];
+			//console.log(url);
 			//console.log(dat.track.album.image[0][propertyName]);
 			//console.log(dat.track.album.image[2].#text);
 			
 			try{
-				document.getElementById("cover").src = dat.track.album.image[3][propertyName];
+				url = dat.track.album.image[3][propertyName];
+				console.log(url.length);
+				if( url === null || url.length === 0){
+					document.getElementById("cover").src = default_image;
+				}
+				document.getElementById("cover").src = url;
+				console.log(url);
 			} catch( err ){
 				document.getElementById("cover").src = default_image;
 			}
@@ -172,14 +181,11 @@
 				return cookie;
 			}
 			else if(token != null){
-
-				//var api_signature = CryptoJS.MD5("api_key" + api_key + "methodauth.getSessiontoken" + token + api_secret).toString();
-				
-				//let response = await fetch("https://ws.audioscrobbler.com/2.0/?method=auth.getSession&api_key=" + api_key + "&token=" + token + "&api_sig=" + api_signature + "&format=json");
-				//let data = await response.json();
-				
 				let response = await fetch("api/token/" + token);
-				j = await response.json();
+				console.log(response);
+				a = await response.text();
+				//console.log(a);
+				j = JSON.parse(a);
 				//console.log(j);
 				document.getElementById("lb").style.display="none";
 				document.getElementById("linked").innerHTML = j.username + "'s account linked!";
