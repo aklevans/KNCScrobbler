@@ -68,7 +68,7 @@
 			var session;
 			session = await startSession();
 			update(session, 0);
-			setInterval(function() {update(session, 40000); }, 50000);
+			setInterval(function() {update(session, 30000); }, 10000);
 		}
 		
 		main();
@@ -107,8 +107,14 @@
 			
 			document.getElementById("songname").innerText = songdata.song;
 			document.getElementById("artist").innerText = songdata.artist;
-			document.getElementById("songlink").href = dat.track.url;
-			document.getElementById("artistlink").href = dat.track.artist.url;
+			try{
+				document.getElementById("songlink").href = dat.track.url;
+				document.getElementById("artistlink").href = dat.track.artist.url;
+			}
+			catch(err){
+				
+			}
+			
 			
 			//JSON.parse(dat.track.album.image)[2].text
 			var propertyName = '#text'
