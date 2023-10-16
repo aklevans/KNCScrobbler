@@ -163,13 +163,11 @@
 
 			var lastName = document.getElementById("songname").innerText;
 			var lastArtist = document.getElementById("artist").innerText;
-			if((songData.song !== document.getElementById("songname").innerText || songData.artist !== document.getElementById("artist").innerText) &&  session != null) {
-				//account for stream lagging behind spinitron
 
-				scrobbleSong(songData, session);
-				console.log("scrobble");
-				//show(songData);
-			}
+			scrobbleSong(songData, session);
+			console.log("scrobble");
+			//show(songData);
+
 			
 			
 			
