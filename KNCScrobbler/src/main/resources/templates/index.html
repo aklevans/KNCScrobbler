@@ -1,8 +1,8 @@
 <!DOCTYPE HTML>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="https://www.thymeleaf.org">
 <head> 
     <title>KNC Scrobbler</title> 
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta https-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <style>
 		.center {
  			margin: auto;
@@ -67,8 +67,9 @@
 		async function main(){
 			var session;
 			session = await startSession();
+			console.log(session);
 			update(session, 0);
-			setInterval(function() {update(session, 30000); }, 10000);
+			setInterval(function() {update(session, 0); }, 30000);
 		}
 		
 		main();
@@ -101,7 +102,7 @@
 		
 		
 		async function showSongData(songdata) {
-			let response = await fetch("http://ws.audioscrobbler.com/2.0/?method=track.getInfo&api_key=" + api_key + "&artist=" + songdata.artist + "&track=" + songdata.song + "&format=json");
+			let response = await fetch("https://ws.audioscrobbler.com/2.0/?method=track.getInfo&api_key=" + api_key + "&artist=" + songdata.artist + "&track=" + songdata.song + "&format=json");
 			var dat = await response.json();
 			console.log(dat);
 			
@@ -189,7 +190,7 @@
 				var cookie = JSON.parse(document.cookie);
 				document.getElementById("lb").style.display="none";
 				document.getElementById("linked").innerHTML = cookie.username + "'s account linked!";
-				document.getElementById("linked").href = "http://last.fm/user/" + cookie.username;
+				document.getElementById("linked").href = "https://last.fm/user/" + cookie.username;
 				document.getElementById("reset").style.display="inline";
 
 				//console.log(document.cookie);
@@ -204,7 +205,7 @@
 				//console.log(j);
 				document.getElementById("lb").style.display="none";
 				document.getElementById("linked").innerHTML = j.username + "'s account linked!";
-				document.getElementById("linked").href = "http://last.fm/user/" + j.username;
+				document.getElementById("linked").href = "https://last.fm/user/" + j.username;
 				document.getElementById("reset").style.display="inline";
 				document.cookie = JSON.stringify(j);
 
@@ -216,7 +217,7 @@
 		
 		function linkAccount(){
 			
-			window.open("http://www.last.fm/api/auth/?api_key=" + api_key + "&cb=" + window.location.href, '_self');
+			window.open("https://www.last.fm/api/auth/?api_key=" + api_key + "&cb=" + window.location.href, '_self');
 		}
 		
 		function reset(){

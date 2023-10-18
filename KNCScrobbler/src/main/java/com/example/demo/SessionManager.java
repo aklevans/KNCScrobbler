@@ -82,17 +82,23 @@ public class SessionManager {
         	//scrobble last track that was playing
         	if(t.isNowPlaying()) {
         		int now = (int) (System.currentTimeMillis() / 1000);
-
                 ScrobbleResult result2 = Track.scrobble(t.getArtist(), t.getName(), now, session);
                 System.out.println("ok: " + (result2.isSuccessful() && !result2.isIgnored()));
         	}
+        	
+        	// set now playing to new song
+            System.out.println("updating to:" + title);
+            
+            
+            
+        	
         }
-        
-    	// set now playing to new song
         ScrobbleResult result = Track.updateNowPlaying(artist, title, session);
+        System.out.println("CurrentlyPlaying:" + getLastPlayed(session).getName());
+        System.out.print(result.toString());
         System.out.println("ok: " + (result.isSuccessful() && !result.isIgnored()));
         
-        
+
     }
     
     public static void scrobbleSong(String json) {
