@@ -3,4 +3,4 @@ This program allows users to track the songs they listen to WKNC 88.1 onto their
 
 https://kncscrobbler.app/
 
-This is a Spring Boot project that is still under development. 
+This is a springboot project written in Java
