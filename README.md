@@ -3,7 +3,7 @@ This program allows users to track the songs they listen to WKNC 88.1 onto their
 
 https://kncscrobbler.app/
 
-This is a springboot project written in Java.
+This is a springboot project written in Java, with JavaScript and HTML for the frontend.
 
 # Linking Account 
 To link your last.fm account, click the button that says "Link last.fm Account". You will be redirected to a page to allow 
