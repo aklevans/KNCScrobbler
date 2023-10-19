@@ -66,11 +66,14 @@ public class SessionManager {
     	}
     }
     
-    public static void startNext(String title, String artist, Session session) {
+    public static void startNext(String title, String artist, Session session, boolean isFirst) {
     	
 
         //check if song has changed 
         // NOTE: this assumes the same song will never be played twice iS a row!!!!! 
+    	if(session == null) {
+    		return;
+    	}
         Track t = getLastPlayed(session);
         if(t != null && (!t.getName().trim().toUpperCase().equals( title.toUpperCase() ) || !t.getArtist().trim().toUpperCase().equals( artist.toUpperCase() )) ) {
         	
@@ -80,7 +83,8 @@ public class SessionManager {
         	System.out.println("Song Match:" + t.getName().trim().toUpperCase().equals( title.toUpperCase() ));
         	
         	//scrobble last track that was playing
-        	if(t.isNowPlaying()) {
+        	if(!isFirst && t.isNowPlaying()) {
+        		
         		int now = (int) (System.currentTimeMillis() / 1000);
                 ScrobbleResult result2 = Track.scrobble(t.getArtist(), t.getName(), now, session);
                 System.out.println("ok: " + (result2.isSuccessful() && !result2.isIgnored()));
@@ -88,13 +92,14 @@ public class SessionManager {
         	
         	// set now playing to new song
             System.out.println("updating to:" + title);
-            
-            
-            
-        	
         }
         ScrobbleResult result = Track.updateNowPlaying(artist, title, session);
-        System.out.println("CurrentlyPlaying:" + getLastPlayed(session).getName());
+        try {
+        	System.out.println("CurrentlyPlaying:" + getLastPlayed(session).getName());
+        }
+        catch(NullPointerException e) {
+        	
+        }
         System.out.print(result.toString());
         System.out.println("ok: " + (result.isSuccessful() && !result.isIgnored()));
         
@@ -104,7 +109,7 @@ public class SessionManager {
     public static void scrobbleSong(String json) {
         Gson g = new Gson();
         ScrobbleRequest s = g.fromJson(json, ScrobbleRequest.class);
-        startNext( s.getSong().trim() , s.getArtist().trim(), s.getSession() );
+        startNext( s.getSong().trim() , s.getArtist().trim(), s.getSession(), s.isFirst() );
     }
     
     public static String getHello() {

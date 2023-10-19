@@ -17,6 +17,8 @@ public class ScrobbleRequest {
 	private String username;
 	private String key;
 	private boolean subscriber;
+	
+	boolean first;
     
     public String getApiKey() {
 		return apiKey;
@@ -97,7 +99,15 @@ public class ScrobbleRequest {
         this.timezone = timezone;
     }
     
-    public Session getSession() {
+
+    
+    public boolean isFirst() {
+		return first;
+	}
+	public void setFirst(boolean first) {
+		this.first = first;
+	}
+	public Session getSession() {
     	return Session.createSession(this.apiKey, this.secret, this.key, this.username, this.subscriber);
     }
     

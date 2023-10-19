@@ -3,14 +3,17 @@
 <head> 
     <title>KNC Scrobbler</title> 
     <meta https-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="icon" type="image/x-icon" href="src/main/resources/images/centered.png">
     <style>
 		.center {
  			margin: auto;
 		  width: 50%;
-		  padding: 150px;
+		  padding: 120px;
 		  text-align: center;
 		  font-family: sans-serif;
 		}
+		
+		
 	</style>
 </head>
 <script
@@ -23,20 +26,23 @@
 	
 	
 	<div class="center">
-		<b style="font-size: 30px; color: rgb(213, 16, 7);">KNC Scrobbler!</b>
+		<b style="font-size: 45px; color: rgb(213, 16, 7);">KNC Scrobbler!</b>
+		<br/>
+		<b id="chan" style="color:antiquewhite">HD1</b>
+		<button id="changeChannel" type="button" onclick="changeChannel()">Change to HD2</button>
 		<br/>
 		<br/>
 		<a target="_blank" id="imglink"><img id="cover"></a>
 		<br/>
 		
-		<iframe src="src/main/resources/250-milliseconds-of-silence.mp3" allow="autoplay" id="audio" style="display: none"></iframe>
+		<iframe  src="src/main/resources/250-milliseconds-of-silence.mp3" allow="autoplay" id="audio" style="display: none"></iframe>
 		<audio controls autoplay name="media">
-			<source src="https://ais-edge105-live365-dal02.cdnstream.com/a45877" type="audio/mpeg"> == $0
+			<source id="player" src="https://ais-edge105-live365-dal02.cdnstream.com/a45877" type="audio/mpeg"> == $0
 		</audio>
 		<br/>
 		<br/>
 		<a style="color:rgb(255, 255, 255); text-decoration: none;"  target="_blank" id="songlink"><b id="songname"></b></a>
-		<a style="color:rgb(255, 255, 255); text-decoration: none;"  target="_blank" id="artistlink"> <p id="artist"></p> </a>
+		<a style="color:rgb(255, 255, 255); text-decoration: none;"  target="_blank" id="artistlink"><p id="artist"></p></a>
 		<br/>
 		<button id=lb type="button" onclick="linkAccount()">Link last.fm Account </button>
 		<a id="linked" target="_blank" style="color: gray; "></a>
@@ -46,6 +52,10 @@
 
 
 	</div>
+	
+	<footer id="footer" style="position: fixed; bottom: 0; height: 30px;">
+		<a href="https://github.com/aklevans/KNCScrobbler" style="color: gray;" target="_blank">Github Repository</a>
+	</footer>
 	
 		<script>
 		// api url
@@ -68,8 +78,8 @@
 			var session;
 			session = await startSession();
 			console.log(session);
-			update(session, 0);
-			setInterval(function() {update(session, 20000); }, 40000);
+			update(session, 0, true);
+			setInterval(function() {update(session, 20000, false); }, 40000);
 		}
 		
 		main();
@@ -79,10 +89,17 @@
 		
 		
 		// Defining async function
-		async function getCurrentSong() {
+		async function getCurrentSong(channel) {
 		   
 			// Storing response
-			const response = await fetch(api_url);
+			var response;
+			if(channel == "1"){
+				response = await fetch(api_url_1);
+			}
+			else{
+				response = await fetch(api_url_2);
+			}
+			
 		   
 			// Storing data in form of JSON
 			var data = await response.json();
@@ -92,13 +109,7 @@
 			return data;
 		}
 		
-		function changeChannel(channel){
-			if(chanel === "HD1"){
-				api_url = api_url_1;
-			}
-			else api_url = api_url_2;
-			
-		}
+
 		
 		
 		async function showSongData(songdata) {
@@ -123,8 +134,8 @@
 			//console.log(url);
 			//console.log(dat.track.album.image[0][propertyName]);
 			//console.log(dat.track.album.image[2].#text);
-			document.getElementById("imglink").href = dat.track.url;
 			try{
+				document.getElementById("imglink").href = dat.track.url;
 				url = dat.track.album.image[3][propertyName];
 				console.log(url.length);
 				if( url == null || url.length === 0){
@@ -139,10 +150,12 @@
 		}
 
 
-		async function scrobbleSong(data, session){
-			
+		async function scrobbleSong(data, session, first){
+			//console.log(first);
 			var combined = Object.assign({}, data, session);
+			combined["first"] = first;
 			var combinedString = JSON.stringify(combined)
+			//console.log(combined);
 			const options = {
 				method: "POST",
 				body: combinedString
@@ -153,10 +166,10 @@
 		}
 
 		
-		async function update(session, delay){
+		async function update(session, delay, first){
 			const queryString = window.location.search;
 			const urlParams = new URLSearchParams(queryString);
-			var songData = await getCurrentSong();
+			var songData = await getCurrentSong(session.channel);
 			//console.log(songData);
 						
 			setTimeout(function() {}, delay);
@@ -165,13 +178,10 @@
 			var lastName = document.getElementById("songname").innerText;
 			var lastArtist = document.getElementById("artist").innerText;
 
-			scrobbleSong(songData, session);
+			scrobbleSong(songData, session, first);
 			console.log("scrobble");
 			//show(songData);
 
-			
-			
-			
 			showSongData(songData);
 
 		}
@@ -184,8 +194,10 @@
 			const queryString = window.location.search;
 			const urlParams = new URLSearchParams(queryString);
 			const token = urlParams.get('token');
+			const channel = urlParams.get('channel');
 			window.history.replaceState({}, document.title, "/");
 
+/**
 			if(document.cookie != null && document.cookie != "" && document.cookie != "null") {
 				var cookie = JSON.parse(document.cookie);
 				document.getElementById("lb").style.display="none";
@@ -196,22 +208,59 @@
 				//console.log(document.cookie);
 				return cookie;
 			}
-			else if(token != null){
+**/
+			let cookie = {};
+			if(document.cookie != null && document.cookie != "" && document.cookie != "null"){
+				cookie = JSON.parse(document.cookie);
+			}
+			
+			if(channel != null){
+				cookie["channel"] = channel
+			}
+			
+
+			if(!cookie.hasOwnProperty("channel")){
+				cookie["channel"] = 1;
+			}
+
+			if(token != null){
 				let response = await fetch("api/token/" + token);
 				console.log(response);
 				a = await response.text();
 				//console.log(a);
 				j = JSON.parse(a);
-				//console.log(j);
-				document.getElementById("lb").style.display="none";
-				document.getElementById("linked").innerHTML = j.username + "'s account linked!";
-				document.getElementById("linked").href = "https://last.fm/user/" + j.username;
-				document.getElementById("reset").style.display="inline";
+				j["channel"] = cookie.channel;
 				document.cookie = JSON.stringify(j);
-
-				return j;
+				console.log(j);
+				cookie = JSON.parse(document.cookie);
 			}
-			return null;
+			
+			
+			document.getElementById("chan").innerText = "HD" + cookie.channel;
+			
+			if(cookie.channel == "1"){
+				document.getElementById("player").src = "https://ais-edge105-live365-dal02.cdnstream.com/a45877";
+				document.getElementById("changeChannel").innerText = "Change to HD2" 
+			}
+			else{
+				document.getElementById("player").src="https://ais-edge101-live365-dal02.cdnstream.com/a30009";
+				document.getElementById("changeChannel").innerText = "Change to HD2" 
+			}
+			
+
+			
+			if(cookie.username != null){
+				document.getElementById("lb").style.display="none";
+				document.getElementById("linked").innerHTML = cookie.username + "'s account linked!";
+				document.getElementById("linked").href = "https://last.fm/user/" + cookie.username;
+				document.getElementById("reset").style.display="inline";
+			}
+			
+
+			document.cookie = JSON.stringify(cookie);
+			console.log(cookie);
+			return cookie;
+			
 		}
 		
 		
@@ -221,14 +270,21 @@
 		}
 		
 		function reset(){
-			document.cookie = null;
+			var channel = JSON.parse(document.cookie)[channel];
+			document.cookie = "{\"channel\":\"" + channel + "\"}";
 			document.getElementById("lb").style.display="inline";
 			document.getElementById("linked").innerText = "";
 			document.getElementById("reset").style.display="none";
-			
 
-
-
+		}
+		
+		function changeChannel(){
+			var cookie = JSON.parse(document.cookie);
+			var goto = "2";
+			if(cookie.channel == "2"){
+				goto = "1";
+			}
+			window.open(window.location.href + "?channel=" + goto, '_self');
 		}
 		
 	</script>
