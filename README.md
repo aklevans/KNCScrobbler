@@ -11,7 +11,10 @@ access to your last.fm account. Click "Yes, allow access" and you will be redire
 be stored in cookies as to not require authorization on each refresh. If your account is successfully connected, your username
 will be displayed upon redirection. 
 
-Songs will stop being scrobbled once the tab is closed.
+Songs will stop being scrobbled once the tab is closed. 
+
+**User information is not stored on the server!** 
+All user authentication information is handled client-side.
 
 # Unlinking Account
 To unlink your account, click the "Unlink account" button. KNC Scrobbler will no longer scrobble the songs from the webstream to your last.fm 
