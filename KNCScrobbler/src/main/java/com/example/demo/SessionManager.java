@@ -66,6 +66,16 @@ public class SessionManager {
     	}
     }
     
+    public static Track getLastLastPlayed(Session session) {
+    	try {
+    		//User.getRecentTracks(secret, key)
+    		//Collection r = User.getRecentTracks( session.getUsername(), 1, 10, session.getApiKey() ).getPageResults();
+    		return (Track)User.getRecentTracks( session.getUsername(), 1, 10, session.getApiKey() ).getPageResults().toArray()[1];
+    	} catch(ArrayIndexOutOfBoundsException e) {
+    		return null;
+    	}
+    }
+    
     public static void startNext(String title, String artist, Session session, boolean isFirst) {
     	
 
@@ -75,6 +85,7 @@ public class SessionManager {
     		return;
     	}
         Track t = getLastPlayed(session);
+        Track t2 = getLastLastPlayed(session);
         if(t != null && (!t.getName().trim().toUpperCase().equals( title.toUpperCase() ) || !t.getArtist().trim().toUpperCase().equals( artist.toUpperCase() )) ) {
         	
     		System.out.println("old Artist: [" + t.getArtist() + "] New Artist: [" + artist + "]");
@@ -84,10 +95,12 @@ public class SessionManager {
         	
         	//scrobble last track that was playing
         	if(!isFirst && t.isNowPlaying()) {
-        		
-        		int now = (int) (System.currentTimeMillis() / 1000);
-                ScrobbleResult result2 = Track.scrobble(t.getArtist(), t.getName(), now, session);
-                System.out.println("ok: " + (result2.isSuccessful() && !result2.isIgnored()));
+        		System.out.println("t2: " + t2.getName());
+        		if(t2 != null && !t2.equals(t)) {
+        			int now = (int) (System.currentTimeMillis() / 1000);
+                    ScrobbleResult result2 = Track.scrobble(t.getArtist(), t.getName(), now, session);
+                    System.out.println("ok: " + (result2.isSuccessful() && !result2.isIgnored()));
+        		}
         	}
         	
         	// set now playing to new song
