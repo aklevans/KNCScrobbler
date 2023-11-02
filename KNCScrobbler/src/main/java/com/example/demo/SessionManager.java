@@ -19,15 +19,11 @@ import java.util.Properties;
 public class SessionManager {
 
     
-
-
-    
-    private static void loadProperties() {
-
-    }
-
-    
-    
+    /**
+     * Creates a session given an authentication token
+     * @param token the authentication token
+     * @return A String json representation of a Session object
+     */
     public static String createSession(String token) {
     	String key;
         String secret;
@@ -56,6 +52,11 @@ public class SessionManager {
         
     }
     
+    /**
+     * Gets the last played song
+     * @param session the authenticated session
+     * @return the last played song or null if one cannot be found
+     */
     public static Track getLastPlayed(Session session) {
     	try {
     		//User.getRecentTracks(secret, key)
@@ -66,6 +67,11 @@ public class SessionManager {
     	}
     }
     
+    /**
+     * Gets the second last played song
+     * @param session the authenticated session
+     * @return	 the second last played song or null if one cannot be found
+     */
     public static Track getLastLastPlayed(Session session) {
     	try {
     		//User.getRecentTracks(secret, key)
@@ -76,6 +82,16 @@ public class SessionManager {
     	}
     }
     
+    /**
+     * Sets the currently playing song on Last.fm. Scrobbles the currently playing song if it has not already been scrobbled
+     * and if this isnt the first time the method has been called since the page has been refreshed (This avoids duplicate scrobbling
+     * when changing from HD1 to HD2 and back again)
+     * 
+     * @param title the title of the song to start playing
+     * @param artist the artist of the song to start playing
+     * @param session the authenticated session
+     * @param isFirst true if this is the first time the method has been called since refreshing the page
+     */
     public static void startNext(String title, String artist, Session session, boolean isFirst) {
     	
 
@@ -119,14 +135,14 @@ public class SessionManager {
 
     }
     
+    /**
+     * Initiates a scrobble
+     * @param json string representation of the song to scobble
+     */
     public static void scrobbleSong(String json) {
         Gson g = new Gson();
         ScrobbleRequest s = g.fromJson(json, ScrobbleRequest.class);
         startNext( s.getSong().trim() , s.getArtist().trim(), s.getSession(), s.isFirst() );
-    }
-    
-    public static String getHello() {
-    	return "hello";
     }
 
 }

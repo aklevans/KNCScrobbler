@@ -37,10 +37,7 @@ public class APIController {
         return new ResponseEntity<String>( HttpStatus.OK );
     }
     
-    @GetMapping("/hello")
-    public String hello() {
-    	return SessionManager.getHello();
-    }
+
     
     
 
