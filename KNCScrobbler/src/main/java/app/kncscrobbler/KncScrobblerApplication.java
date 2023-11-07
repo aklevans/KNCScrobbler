@@ -1,4 +1,4 @@
-package com.example.demo;
+package app.kncscrobbler;
 
 import java.util.Arrays;
 

@@ -1,4 +1,4 @@
-package com.example.demo;
+package app.kncscrobbler;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,6 +12,11 @@ public class MappingController {
     @GetMapping("/")
     public String index() {
         return "index";
+    }
+    
+    @GetMapping("/index2")
+    public String index2() {
+        return "index2";
     }
     
 

@@ -36,7 +36,7 @@
 		<br/>
 		
 		<iframe  src="src/main/resources/250-milliseconds-of-silence.mp3" allow="autoplay" id="audio" style="display: none"></iframe>
-		<audio controls autoplay name="media">
+		<audio controls autoplay  id="audio">
 			<source id="player" src="https://ais-edge105-live365-dal02.cdnstream.com/a45877" type="audio/mpeg"> == $0
 		</audio>
 		<br/>
@@ -119,6 +119,8 @@
 			
 			document.getElementById("songname").innerText = songdata.song;
 			document.getElementById("artist").innerText = songdata.artist;
+			document.getElementById("audio").setAttribute("title", songdata.artist + " - " + songdata.song);
+			
 			try{
 				document.getElementById("songlink").href = dat.track.url;
 				document.getElementById("artistlink").href = dat.track.artist.url;

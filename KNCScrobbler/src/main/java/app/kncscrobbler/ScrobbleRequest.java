@@ -1,8 +1,8 @@
-package com.example.demo;
+package app.kncscrobbler;
 
 import de.umass.lastfm.Session;
 
-public class CoverRequest {
+public class ScrobbleRequest {
     private String artist;
     private String duration;
     private String end;
@@ -12,7 +12,44 @@ public class CoverRequest {
     private String start;
     private String timezone;
     
+	private String apiKey;
+	private String secret;
+	private String username;
+	private String key;
+	private boolean subscriber;
 	
+	boolean first;
+    
+    public String getApiKey() {
+		return apiKey;
+	}
+	public void setApiKey(String apiKey) {
+		this.apiKey = apiKey;
+	}
+	public String getSecret() {
+		return secret;
+	}
+	public void setSecret(String secret) {
+		this.secret = secret;
+	}
+	public String getUsername() {
+		return username;
+	}
+	public void setUsername(String username) {
+		this.username = username;
+	}
+	public String getKey() {
+		return key;
+	}
+	public void setKey(String key) {
+		this.key = key;
+	}
+	public boolean isSubscriber() {
+		return subscriber;
+	}
+	public void setSubscriber(boolean subscriber) {
+		this.subscriber = subscriber;
+	}
 	public String getArtist () {
         return artist;
     }
@@ -63,6 +100,16 @@ public class CoverRequest {
     }
     
 
+    
+    public boolean isFirst() {
+		return first;
+	}
+	public void setFirst(boolean first) {
+		this.first = first;
+	}
+	public Session getSession() {
+    	return Session.createSession(this.apiKey, this.secret, this.key, this.username, this.subscriber);
+    }
     
     
 }

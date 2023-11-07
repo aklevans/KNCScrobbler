@@ -1,4 +1,4 @@
-package com.example.demo;
+package app.kncscrobbler;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,6 +30,7 @@ public class APIController {
         return SessionManager.createSession( token );
 
     }
+    
     
     @PostMapping ( BASE_PATH + "song/" )
     public ResponseEntity<String> scrobbleSong(@RequestBody  String info) {

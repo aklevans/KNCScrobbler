@@ -1,4 +1,4 @@
-package com.example.demo;
+package app.kncscrobbler;
 
 import com.google.gson.Gson;
 
