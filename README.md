@@ -1,9 +1,12 @@
 # KNCScrobbler
-This program allows users to track the songs they listen to WKNC 88.1 onto their last.fm profile. 
+This program allows users to track the songs they listen to WKNC 88.1 onto their last.fm profile. The website may take few minutes to load if it has been inactive for over 15 minutes as per render.com's free hosting policy
 
 https://kncscrobbler.app/
 
-This is a springboot project written in Java, with JavaScript and HTML for the frontend.
+Mirror:
+https://knc-scrobbler.onrender.com/
+
+This is a springboot project written in Java, JavaScript, and HTML.
 
 # Linking Account 
 To link your last.fm account, click the button that says "Link last.fm Account". You will be redirected to a page to allow 
