@@ -1,5 +1,6 @@
-package app.kncscrobbler;
+package app.kncscrobbler.models;
 
+import app.kncscrobbler.SessionManager;
 import de.umass.lastfm.Session;
 
 public class ScrobbleRequest {
@@ -12,44 +13,19 @@ public class ScrobbleRequest {
     private String start;
     private String timezone;
     
-	private String apiKey;
-	private String secret;
-	private String username;
+
 	private String key;
-	private boolean subscriber;
 	
 	boolean first;
     
-    public String getApiKey() {
-		return apiKey;
-	}
-	public void setApiKey(String apiKey) {
-		this.apiKey = apiKey;
-	}
-	public String getSecret() {
-		return secret;
-	}
-	public void setSecret(String secret) {
-		this.secret = secret;
-	}
-	public String getUsername() {
-		return username;
-	}
-	public void setUsername(String username) {
-		this.username = username;
-	}
+
 	public String getKey() {
 		return key;
 	}
 	public void setKey(String key) {
 		this.key = key;
 	}
-	public boolean isSubscriber() {
-		return subscriber;
-	}
-	public void setSubscriber(boolean subscriber) {
-		this.subscriber = subscriber;
-	}
+
 	public String getArtist () {
         return artist;
     }
@@ -108,7 +84,7 @@ public class ScrobbleRequest {
 		this.first = first;
 	}
 	public Session getSession() {
-    	return Session.createSession(this.apiKey, this.secret, this.key, this.username, this.subscriber);
+    	return SessionManager.getSessionFromKey(key);
     }
     
     

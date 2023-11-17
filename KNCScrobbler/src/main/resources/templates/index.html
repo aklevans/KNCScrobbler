@@ -76,10 +76,10 @@
 		
 		async function main(){
 			var session;
-			session = await startSession();
-			console.log(session);
-			update(session, 0, true);
-			setInterval(function() {update(session, 20000, false); }, 65000);
+			key = await startSession();
+			//console.log(token);
+			update(key, 0, true);
+			setInterval(function() {update(session, 0, false); }, 90000);
 		}
 		
 		main();
@@ -152,15 +152,16 @@
 		}
 
 
-		async function scrobbleSong(data, session, first){
+		async function scrobbleSong(data, key, first){
 			//console.log(first);
-			var combined = Object.assign({}, data, session);
-			combined["first"] = first;
-			var combinedString = JSON.stringify(combined)
+			
+			data.first = first;
+			data.key = getCookie("key");
+			t = JSON.stringify(data);
 			//console.log(combined);
 			const options = {
 				method: "POST",
-				body: combinedString
+				body: t
 			}
 			//console.log("songData: " + combinedString);
 			let response = await fetch("api/song/", options);
@@ -168,7 +169,7 @@
 		}
 
 		
-		async function update(session, delay, first){
+		async function update(token, delay, first){
 			const queryString = window.location.search;
 			const urlParams = new URLSearchParams(queryString);
 			var songData = await getCurrentSong(getCookie("channel"));
@@ -180,7 +181,7 @@
 			var lastName = document.getElementById("songname").innerText;
 			var lastArtist = document.getElementById("artist").innerText;
 
-			scrobbleSong(songData, session, first);
+			scrobbleSong(songData, token, first);
 			console.log("scrobble");
 			//show(songData);
 
@@ -266,7 +267,7 @@
 				console.log(a);
 				j = JSON.parse(a);
 				setCookie("username", j.username);
-				setCookie("session", a);
+				setCookie("key", j.key);
 
 			}
 			
@@ -284,7 +285,7 @@
 			
 
 			
-			if(getCookie("session") != null){
+			if(getCookie("key") != null){
 				document.getElementById("lb").style.display="none";
 				document.getElementById("linked").innerHTML = getCookie("username") + "'s account linked!";
 				document.getElementById("linked").href = "https://last.fm/user/" + getCookie("username");
@@ -293,7 +294,7 @@
 			
 
 			
-			return JSON.parse(getCookie("session"));
+			return getCookie("key");
 			
 		}
 		
@@ -304,7 +305,8 @@
 		}
 		
 		function reset(){
-			document.cookie = "session" + "="; 
+			document.cookie = "key" + "="; 
+			document.cookie = "username=";
 			document.getElementById("lb").style.display="inline";
 			document.getElementById("linked").innerText = "";
 			document.getElementById("reset").style.display="none";

@@ -2,6 +2,7 @@ package app.kncscrobbler;
 
 import com.google.gson.Gson;
 
+import app.kncscrobbler.models.ScrobbleRequest;
 import de.umass.lastfm.Authenticator;
 import de.umass.lastfm.PaginatedResult;
 import de.umass.lastfm.Session;
@@ -24,7 +25,7 @@ public class SessionManager {
      * @param token the authentication token
      * @return A String json representation of a Session object
      */
-    public static String createSession(String token) {
+    public static Session createSession(String token) {
     	String key;
         String secret;
         try (InputStream input = new FileInputStream("src/main/resources/static/config.properties")) {
@@ -47,10 +48,38 @@ public class SessionManager {
             
         }
         
-        return new Gson().toJson(Authenticator.getSession( token, key, secret ));
+        return Authenticator.getSession( token, key, secret );
 
         
     }
+    
+    public static Session getSessionFromKey(String sessionKey) {
+    	String api_key;
+        String secret;
+        try (InputStream input = new FileInputStream("src/main/resources/static/config.properties")) {
+
+            Properties prop = new Properties();
+
+            // load a properties file
+            prop.load(input);
+            
+            // get the property value and print it out
+            api_key = prop.getProperty( "key");
+            secret = prop.getProperty( "secret" );
+
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            api_key = System.getenv("KEY");
+            secret = System.getenv("SECRET");
+            
+            
+        }
+        
+        return Session.createSession(api_key, secret, sessionKey);
+    }
+    
+
     
     /**
      * Gets the last played song
@@ -139,10 +168,10 @@ public class SessionManager {
      * Initiates a scrobble
      * @param json string representation of the song to scobble
      */
-    public static void scrobbleSong(String json) {
-        Gson g = new Gson();
-        ScrobbleRequest s = g.fromJson(json, ScrobbleRequest.class);
-        startNext( s.getSong().trim() , s.getArtist().trim(), s.getSession(), s.isFirst() );
+    public static void scrobbleSong(String str) {
+    	Gson gson = new Gson();
+    	ScrobbleRequest s = gson.fromJson(str, ScrobbleRequest.class);
+    	startNext( s.getSong().trim() , s.getArtist().trim(), s.getSession(), s.isFirst() );
     }
 
 }
