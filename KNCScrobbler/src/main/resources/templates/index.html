@@ -171,7 +171,7 @@
 		async function update(session, delay, first){
 			const queryString = window.location.search;
 			const urlParams = new URLSearchParams(queryString);
-			var songData = await getCurrentSong(session.channel);
+			var songData = await getCurrentSong(getCookie("channel"));
 			//console.log(songData);
 						
 			setTimeout(function() {}, delay);
@@ -188,7 +188,40 @@
 
 		}
 		
+		function setCookie(name, value) {
+		    // Encode value in order to escape semicolons, commas, and whitespace
+		    var cookie = name + "=" + encodeURIComponent(value);
+		    
 
+		    cookie += "; max-age=" + (10*24*60*60);
+		        
+		    document.cookie = cookie;
+
+		}
+		
+		function getCookie(name) {
+		    // Split cookie string and get all individual name=value pairs in an array
+		    var cookieArr = document.cookie.split(";");
+		    
+		    // Loop through the array elements
+		    for(var i = 0; i < cookieArr.length; i++) {
+		        var cookiePair = cookieArr[i].split("=");
+		        
+		        /* Removing whitespace at the beginning of the cookie name
+		        and compare it with the given string */
+		        if(name == cookiePair[0].trim()) {
+		            // Decode the cookie value and return
+		            ans = decodeURIComponent(cookiePair[1]);
+		            if (ans == ""){
+						ans = null;
+					}
+					return ans;
+		        }
+		    }
+		    
+		    // Return null if not found
+		    return null;
+		}
 		
 		async function startSession(){
 			document.getElementById("reset").style.display="none";
@@ -197,50 +230,50 @@
 			const urlParams = new URLSearchParams(queryString);
 			const token = urlParams.get('token');
 			const channel = urlParams.get('channel');
-			//window.history.replaceState({}, document.title, "/");
+			window.history.replaceState({}, document.title, "/");
+			
 
+			
 /**
-			if(document.cookie != null && document.cookie != "" && document.cookie != "null") {
-				var cookie = JSON.parse(document.cookie);
+			if(getCookie("session") != null) {
 				document.getElementById("lb").style.display="none";
-				document.getElementById("linked").innerHTML = cookie.username + "'s account linked!";
-				document.getElementById("linked").href = "https://last.fm/user/" + cookie.username;
+				document.getElementById("linked").innerHTML = getCookie("username") + "'s account linked!";
+				document.getElementById("linked").href = "https://last.fm/user/" + getCookie("username");
 				document.getElementById("reset").style.display="inline";
 
 				//console.log(document.cookie);
-				return cookie;
+				return getCookie("session");
 			}
 **/
-			let cookie = {};
-			if(document.cookie != null && document.cookie != "" && document.cookie != "null"){
-				cookie = JSON.parse(document.cookie);
-			}
-			
+
+	
 			if(channel != null){
-				cookie["channel"] = channel
+				setCookie("channel", "");
+				setCookie("channel", channel);
 			}
 			
 
-			if(!cookie.hasOwnProperty("channel")){
-				cookie["channel"] = 1;
+			if(getCookie("channel") == null){
+				setCookie("channel", "1");
+				console.log(getCookie("channel"));
 			}
+
 
 			if(token != null){
 				let response = await fetch("api/token/" + token);
 				console.log(response);
 				a = await response.text();
-				//console.log(a);
+				console.log(a);
 				j = JSON.parse(a);
-				j["channel"] = cookie.channel;
-				document.cookie = JSON.stringify(j);
-				console.log(j);
-				cookie = JSON.parse(document.cookie);
+				setCookie("username", j.username);
+				setCookie("session", a);
+
 			}
 			
 			
-			document.getElementById("chan").innerText = "HD" + cookie.channel;
-			
-			if(cookie.channel == "1"){
+			document.getElementById("chan").innerText = "HD" + getCookie("channel");
+
+			if(getCookie("channel") == "1"){
 				document.getElementById("player").src = "https://ais-edge105-live365-dal02.cdnstream.com/a45877";
 				document.getElementById("changeChannel").innerText = "Change to HD2" 
 			}
@@ -251,17 +284,16 @@
 			
 
 			
-			if(cookie.username != null){
+			if(getCookie("session") != null){
 				document.getElementById("lb").style.display="none";
-				document.getElementById("linked").innerHTML = cookie.username + "'s account linked!";
-				document.getElementById("linked").href = "https://last.fm/user/" + cookie.username;
+				document.getElementById("linked").innerHTML = getCookie("username") + "'s account linked!";
+				document.getElementById("linked").href = "https://last.fm/user/" + getCookie("username");
 				document.getElementById("reset").style.display="inline";
 			}
 			
 
-			document.cookie = JSON.stringify(cookie);
-			console.log(cookie);
-			return cookie;
+			
+			return JSON.parse(getCookie("session"));
 			
 		}
 		
@@ -272,8 +304,7 @@
 		}
 		
 		function reset(){
-			var channel = JSON.parse(document.cookie)[channel];
-			document.cookie = "{\"channel\":\"" + channel + "\"}";
+			document.cookie = "session" + "="; 
 			document.getElementById("lb").style.display="inline";
 			document.getElementById("linked").innerText = "";
 			document.getElementById("reset").style.display="none";
@@ -281,9 +312,8 @@
 		}
 		
 		function changeChannel(){
-			var cookie = JSON.parse(document.cookie);
 			var goto = "2";
-			if(cookie.channel == "2"){
+			if(getCookie("channel") == "2"){
 				goto = "1";
 			}
 			window.open(window.location.href + "?channel=" + goto, '_self');
