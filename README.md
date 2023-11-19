@@ -17,7 +17,7 @@ will be displayed upon redirection.
 Songs will stop being scrobbled once the tab is closed. 
 
 **Usernames/passwords are not stored on the server!** 
-All user authentication information is handled client-side.
+User authentication is handled by last.fm and session keys are stored in secure HTTPSOnly cookies.
 
 # Unlinking Account
 To unlink your account, click the "Unlink account" button. KNC Scrobbler will no longer scrobble the songs from the webstream to your last.fm 
