@@ -1,88 +1,264 @@
-<!DOCTYPE HTML>
-<html xmlns:th="https://www.thymeleaf.org">
-<head> 
-    <title>KNC Scrobbler</title> 
-    <meta https-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <link rel="icon" type="image/x-icon" href="src/main/resources/images/centered.png">
-    <style>
-		.center {
- 			margin: auto;
-		  width: 50%;
-		  padding: 120px;
-		  text-align: center;
-		  font-family: sans-serif;
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+		<script
+	src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.js"></script>
+    <title>KNC Scrobbler!</title>
+  </head>
+  <body style="background-color:rgb(0, 0, 0)">
+
+    <!-- Option 1: Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+	
+	<script>
+		// public api key
+		const api_key = "23a4290148e4069d3dbce24cade6b491";
+
+		const api_url_1 = 
+			  "https://wknc.org/wp-json/wknc/v1/now-playing?station=1";
+			  
+		const api_url_2 = 
+			  "https://wknc.org/wp-json/wknc/v1/now-playing?station=2";
+	
+		const hd1_stream_url = "https://ais-edge105-live365-dal02.cdnstream.com/a45877";
+		
+		const hd2_stream_url = "https://ais-edge101-live365-dal02.cdnstream.com/a30009";
+		
+		const default_image = "https://github.com/aklevans/KNCScrobbler/blob/main/KNCScrobbler/src/main/resources/images/centered.png?raw=true";
+
+		function setCookie(name, value) {
+		    // Encode value in order to escape semicolons, commas, and whitespace
+		    var cookie = name + "=" + encodeURIComponent(value);
+		    
+
+		    cookie += "; max-age=" + (10*24*60*60);
+		        
+		    document.cookie = cookie;
+
+		}
+		
+		function getCookie(name) {
+		    // Split cookie string and get all individual name=value pairs in an array
+		    var cookieArr = document.cookie.split(";");
+		    
+		    // Loop through the array elements
+		    for(var i = 0; i < cookieArr.length; i++) {
+		        var cookiePair = cookieArr[i].split("=");
+		        
+		        /* Removing whitespace at the beginning of the cookie name
+		        and compare it with the given string */
+		        if(name == cookiePair[0].trim()) {
+		            // Decode the cookie value and return
+		            ans = decodeURIComponent(cookiePair[1]);
+		            if (ans == ""){
+						ans = null;
+					}
+					return ans;
+		        }
+		    }
+		    
+		    // Return null if not found
+		    return null;
 		}
 		
 		
-	</style>
-</head>
-<script
-	src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.js"></script>
-<body style="background-color:rgb(0, 0, 0)">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/core.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/md5.js"></script>
-	
-
-	
-	
-	<div class="center">
-		<b style="font-size: 45px; color: rgb(213, 16, 7);">KNC Scrobbler!</b>
-		<br/>
-		<b id="chan" style="color:antiquewhite">HD1</b>
-		<button id="changeChannel" type="button" onclick="changeChannel()">Change to HD2</button>
-		<br/>
-		<br/>
-		<a target="_blank" id="imglink"><img id="cover"></a>
-		<br/>
 		
-		<iframe  src="src/main/resources/250-milliseconds-of-silence.mp3" allow="autoplay" id="audio" style="display: none"></iframe>
-		<audio controls autoplay name="media">
-			<source id="player" src="https://ais-edge105-live365-dal02.cdnstream.com/a45877" type="audio/mpeg"> == $0
-		</audio>
-		<br/>
-		<br/>
-		<a style="color:rgb(255, 255, 255); text-decoration: none;"  target="_blank" id="songlink"><b id="songname"></b></a>
-		<a style="color:rgb(255, 255, 255); text-decoration: none;"  target="_blank" id="artistlink"><p id="artist"></p></a>
-		<br/>
-		<button id=lb type="button" onclick="linkAccount()">Link last.fm Account </button>
-		<a id="linked" target="_blank" style="color: gray; "></a>
-		<br/>
-		<br/>
-		<button id=reset type="button" onclick="reset()">Unlink account</button>
-
-
-	</div>
-	
-	<footer id="footer" style="position: fixed; bottom: 0; height: 30px;">
-		<a href="https://github.com/aklevans/KNCScrobbler" style="color: gray;" target="_blank">Github Repository</a>
-	</footer>
-	
-	<script>
 		
 		var app = angular.module('myApp', []);
-		app.controller('addRecipeCtrl', function($scope, $http, $q) {
-					// api url
-			const api_url_1 = 
-				  "https://wknc.org/wp-json/wknc/v1/now-playing?station=1";
-				  
-			const api_url_2 = 
-				  "https://wknc.org/wp-json/wknc/v1/now-playing?station=2";
-				  
-			const api_key = "23a4290148e4069d3dbce24cade6b491";
-			
-			const default_image = "https://github.com/aklevans/KNCScrobbler/blob/main/KNCScrobbler/src/main/resources/images/centered.png?raw=true";
+		app.controller('ctrl', function($scope, $http) {
+
 			
 			$scope.linkAccount = function() {
 				window.open("https://www.last.fm/api/auth/?api_key=" + api_key + "&cb=" + window.location.href, '_self');
 			}
 			
 			$scope.startSession = function(){
+				$scope.signedIn = false;
+				var channel = getCookie("channel");
+				if(channel == null || channel === "1"){
+					$scope.channel = 1;
+					document.getElementById("audio1").muted = false;
+					document.getElementById("audio2").muted = true;	
+				}else{
+					$scope.channel = 2;
+					document.getElementById("audio1").muted = true;
+					document.getElementById("audio2").muted = false;	
+				}
+							
 				
+				const queryString = window.location.search;
+				const urlParams = new URLSearchParams(queryString);
+				const token = urlParams.get('token');
+				//const channel = urlParams.get('channel');
+				window.history.replaceState({}, document.title, "/");
+				
+				if(token != null){
+					$http.get("api/token/" + token).then(
+						function(response){
+							j = response.data;
+							console.log(j);
+							setCookie("username", j.username);
+							setCookie("key", j.key);
+							$scope.signedIn = true;
+							$scope.username = j.username;
+						}, function(rejection){
+							
+						}
+							
+					);
+
+				} else if(getCookie("key") != null){
+					$scope.signedIn = true;
+					$scope.username = getCookie("username");
+				}
+
+			}
+			
+			$scope.reset = function(){
+				$scope.signedIn = false;
+				document.cookie = "key" + "="; 
+				document.cookie = "username=";setCookie("key")
+				$scope.username = "";
+			}
+			
+			$scope.update = function(first){
+				
+				url = "";
+				if($scope.channel == 1){
+					url = api_url_1;
+				}
+				else{
+					url = api_url_2;
+				}
+				
+				// get song 
+				$http.get(url).then(
+					function(response){
+						$scope.song = response.data;
+						$scope.scrobbleSong($scope.song, first);
+						console.log("scrobble");
+						$http.get("https://ws.audioscrobbler.com/2.0/?method=track.getInfo&api_key=" + api_key + 
+								"&artist=" + $scope.song.artist + "&track=" + $scope.song.song + "&format=json").then(
+								function(response){
+									dat = response.data;
+									var propertyName = '#text'
+
+									try{
+										document.getElementById("imglink").href = dat.track.url;
+										url = dat.track.album.image[3][propertyName];
+										console.log(url.length);
+										if( url == null || url.length === 0){
+											//document.getElementById("cover").src = default_image;
+											$scope.imgLink = default_image;
+										}
+										else {
+											//document.getElementById("cover").src = url;
+											$scope.imgLink = url;
+										}
+										console.log(url);
+									} catch( err ){
+										//document.getElementById("cover").src = default_image;
+										$scope.imgLink = default_image;
+									}
+									
+									
+								}		
+						);
+					}		
+				
+				)
+
+			}
+			
+			$scope.scrobbleSong = function(songData, first){
+				songData.first = first;
+				songData.key = getCookie("key");
+				t = JSON.stringify(songData);
+				//console.log(combined);
+
+				$http.post("api/song/", t);
+
 			}
 			
 			
-			//run
-	</script>
+			$scope.changeChannel = function(){
+				if($scope.channel == 1){
+					$scope.channel = 2;
+					document.getElementById("audio1").muted = true;
+					document.getElementById("audio2").muted = false;
+					$scope.update(true);
+					setCookie("channel", 2);
+
+				}
+				else{
+					$scope.channel = 1;
+					document.getElementById("audio1").muted = false;
+					document.getElementById("audio2").muted = true;
+					$scope.update(true);
+					setCookie("channel", 1);
+
+
+				}
+			}
+			
+			
+			
+			//main
+			$scope.songName = "pee";
+			$scope.artist = "poo";
+			
+			$scope.startSession();
+			$scope.update(true);
+			
+			setInterval(function() {$scope.update(false); }, 90000);
+
+			
+			
+		});
 	
-</body>
+	</script>
+
+	
+	<div class="text-center" ng-app="myApp"
+		ng-controller="ctrl as ctrl">
+		<b style="font-size: 45px; color: rgb(213, 16, 7);">KNC Scrobbler!</b>
+		<br/>
+		<b id="chan" style="color:antiquewhite">HD{{channel}}</b>
+		<button id="changeChannel" type="button" ng-click="changeChannel()">Change Channel</button>
+		<br/>
+		<br/>
+		<a target="_blank" id="imglink"><img id="cover" ng-src="{{imgLink}}"></a>
+		<br/> <br/>
+		
+		<audio ng-show="channel==1"  controls autoplay  id="audio1">
+			<source id="player1"  src="https://ais-edge105-live365-dal02.cdnstream.com/a45877" type="audio/mpeg"> == $0
+		</audio>
+		
+		<audio ng-show="channel==2"  controls autoplay  id="audio2">
+			<source id="player2"  src="https://ais-edge101-live365-dal02.cdnstream.com/a30009" type="audio/mpeg"> == $0
+		</audio>
+		
+		<br/>
+		<br/>
+		<a style="color:rgb(255, 255, 255); text-decoration: none;"  target="_blank" id="songlink">{{song.song}}<b id="songname"></b></a> <br/>
+		<a style="color:rgb(255, 255, 255); text-decoration: none;"  target="_blank" id="artistlink">{{song.artist}}<p id="artist"></p></a> <br/>
+		
+		<button id=lb ng-show="!signedIn" type="button" ng-click="linkAccount()">Link last.fm Account</button>
+		<a id="linked" ng-show="signedIn" href="https://last.fm/user/{{username}}" target="_blank" style="color: gray; ">{{username}}'s account linked!</a>
+		<br/>
+		<br/>
+		<button id=reset ng-show="signedIn" type="button" ng-click="reset()">Unlink account</button>
+
+
+	</div>
+	<footer id="footer" style="position: fixed; bottom: 0; height: 30px;">
+		<a href="https://github.com/aklevans/KNCScrobbler" style="color: gray;" target="_blank">Github Repository</a>
+	</footer>
+  </body>
 </html>
