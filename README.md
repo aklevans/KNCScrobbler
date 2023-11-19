@@ -16,7 +16,7 @@ will be displayed upon redirection.
 
 Songs will stop being scrobbled once the tab is closed. 
 
-**User information is not stored on the server!** 
+**Usernames/passwords are not stored on the server!** 
 All user authentication information is handled client-side.
 
 # Unlinking Account
