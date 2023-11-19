@@ -15,10 +15,18 @@ public class ScrobbleRequest {
     
 
 	private String key;
-	
+	private String username;
 	boolean first;
     
 
+	
+	public String getUsername() {
+	    return username;
+	}
+	
+	public void setUsername(String username) {
+	    this.username = username;
+	}
 	public String getKey() {
 		return key;
 	}
@@ -84,7 +92,7 @@ public class ScrobbleRequest {
 		this.first = first;
 	}
 	public Session getSession() {
-    	return SessionManager.getSessionFromKey(key);
+    	return SessionManager.getSessionFromKey(key, username);
     }
     
     

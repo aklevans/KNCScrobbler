@@ -179,6 +179,7 @@
 			$scope.scrobbleSong = function(songData, first){
 				songData.first = first;
 				songData.key = getCookie("key");
+				songData.username = getCookie("username");
 				t = JSON.stringify(songData);
 				//console.log(combined);
 
