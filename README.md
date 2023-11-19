@@ -1,5 +1,5 @@
 # KNCScrobbler
-This program allows users to track the songs they listen to WKNC 88.1 onto their last.fm profile. The website may take few minutes to load if it has been inactive for over 15 minutes as per render.com's free hosting policy
+This program allows users to track the songs they listen to WKNC 88.1 onto their last.fm profile. 
 
 https://kncscrobbler.app/
 
