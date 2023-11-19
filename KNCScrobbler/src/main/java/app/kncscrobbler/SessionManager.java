@@ -36,7 +36,7 @@ public class SessionManager {
             prop.load(input);
             
             // get the property value and print it out
-            key = prop.getProperty( "key");
+            key = prop.getProperty("key");
             secret = prop.getProperty( "secret" );
 
 
@@ -53,7 +53,7 @@ public class SessionManager {
         
     }
     
-    public static Session getSessionFromKey(String sessionKey) {
+    public static Session getSessionFromKey(String sessionKey, String username) {
     	String api_key;
         String secret;
         try (InputStream input = new FileInputStream("src/main/resources/static/config.properties")) {
@@ -76,7 +76,7 @@ public class SessionManager {
             
         }
         
-        return Session.createSession(api_key, secret, sessionKey);
+        return Session.createSession(api_key, secret, sessionKey, username, false);
     }
     
 
