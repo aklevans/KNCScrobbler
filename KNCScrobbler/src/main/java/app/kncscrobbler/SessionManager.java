@@ -168,9 +168,10 @@ public class SessionManager {
      * Initiates a scrobble
      * @param json string representation of the song to scobble
      */
-    public static void scrobbleSong(String str) {
+    public static void scrobbleSong(String str, String key) {
     	Gson gson = new Gson();
     	ScrobbleRequest s = gson.fromJson(str, ScrobbleRequest.class);
+    	s.setKey( key );
     	startNext( s.getSong().trim() , s.getArtist().trim(), s.getSession(), s.isFirst() );
     }
 

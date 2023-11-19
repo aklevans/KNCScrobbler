@@ -80,6 +80,8 @@
 			
 			$scope.startSession = function(){
 				$scope.signedIn = false;
+				$scope.imgLink = default_image;
+
 				var channel = getCookie("channel");
 				if(channel == null || channel === "1"){
 					$scope.channel = 1;
@@ -90,6 +92,11 @@
 					document.getElementById("audio1").muted = true;
 					document.getElementById("audio2").muted = false;	
 				}
+				
+				if(getCookie("key") != null){
+					$scope.reset();
+				}
+				
 							
 				
 				const queryString = window.location.search;
@@ -99,21 +106,18 @@
 				window.history.replaceState({}, document.title, "/");
 				
 				if(token != null){
-					$http.get("api/token/" + token).then(
+					$http.post("api/token/" + token).then(
 						function(response){
 							j = response.data;
 							console.log(j);
 							setCookie("username", j.username);
-							setCookie("key", j.key);
 							$scope.signedIn = true;
 							$scope.username = j.username;
-						}, function(rejection){
-							
 						}
 							
 					);
 
-				} else if(getCookie("key") != null){
+				} else if(getCookie("username") != null){
 					$scope.signedIn = true;
 					$scope.username = getCookie("username");
 				}
@@ -123,8 +127,9 @@
 			$scope.reset = function(){
 				$scope.signedIn = false;
 				document.cookie = "key" + "="; 
-				document.cookie = "username=";setCookie("key")
+				document.cookie = "username=";
 				$scope.username = "";
+				$http.put("api/reset");
 			}
 			
 			$scope.update = function(first){
@@ -178,12 +183,14 @@
 			
 			$scope.scrobbleSong = function(songData, first){
 				songData.first = first;
-				songData.key = getCookie("key");
+				songData.key = null;
 				songData.username = getCookie("username");
 				t = JSON.stringify(songData);
 				//console.log(combined);
 
-				$http.post("api/song/", t);
+				if($scope.signedIn){
+					$http.post("api/song/", t);
+				}
 
 			}
 			
