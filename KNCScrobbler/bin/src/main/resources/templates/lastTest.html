@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Insert title here</title>
+
+</head>
+
+<body>
+	<script type="text/javascript" src="lastfm.api.md5.js"></script>
+	<script type="text/javascript" src="lastfm.api.js"></script>
+	
+	<script>
+
+		
+		/* Create a cache object */
+		var cache = new LastFMCache();
+
+		/* Create a LastFM object */
+		var lastfm = new LastFM({
+		  apiKey    : '23a4290148e4069d3dbce24cade6b491',
+		  apiSecret : 'ce54995d20345dad6ac7c1c72276cfd5',
+		  cache     : cache
+		});
+
+		/* Load some artist info. */
+		lastfm.artist.getInfo({artist: 'The xx'}, {success: function(data){
+		  /* Use data. */
+			document.getElementById("result").innerHTML = data;
+
+		}, error: function(code, message){
+		  /* Show error message. */
+				document.getElementById("result").innerHTML = "error! " + message;
+
+		}});
+	</script>
+	<p>test</p>
+	<p id="result"></p>
+</body>
+</html>
