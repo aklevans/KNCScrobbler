@@ -121,13 +121,13 @@ public class SessionManager {
      * @param session the authenticated session
      * @param isFirst true if this is the first time the method has been called since refreshing the page
      */
-    public static void startNext(String title, String artist, Session session, boolean isFirst) {
+    public static boolean startNext(String title, String artist, Session session, boolean isFirst) {
     	
 
         //check if song has changed 
         // NOTE: this assumes the same song will never be played twice iS a row!!!!! 
     	if(session == null) {
-    		return;
+    		return false;
     	}
         Track t = getLastPlayed(session);
         Track t2 = getLastLastPlayed(session);
@@ -152,6 +152,8 @@ public class SessionManager {
             System.out.println("updating to:" + title);
         }
         ScrobbleResult result = Track.updateNowPlaying(artist, title, session);
+        
+
         try {
         	System.out.println("CurrentlyPlaying:" + getLastPlayed(session).getName());
         }
@@ -161,6 +163,8 @@ public class SessionManager {
         System.out.print(result.toString());
         System.out.println("ok: " + (result.isSuccessful() && !result.isIgnored()));
         
+        //invalid authentication
+        return result.getErrorCode() != 9;
 
     }
     
@@ -168,11 +172,13 @@ public class SessionManager {
      * Initiates a scrobble
      * @param json string representation of the song to scobble
      */
-    public static void scrobbleSong(String str, String key) {
+    public static boolean scrobbleSong(String str, String key) {
     	Gson gson = new Gson();
     	ScrobbleRequest s = gson.fromJson(str, ScrobbleRequest.class);
     	s.setKey( key );
-    	startNext( s.getSong().trim() , s.getArtist().trim(), s.getSession(), s.isFirst() );
+    	return startNext( s.getSong().trim() , s.getArtist().trim(), s.getSession(), s.isFirst() );
     }
+    
+
 
 }

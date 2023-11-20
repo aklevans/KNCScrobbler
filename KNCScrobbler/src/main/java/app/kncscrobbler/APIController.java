@@ -14,6 +14,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.net.HttpCookie;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,12 +45,33 @@ public class APIController {
     public SessionInfo startSession(@PathVariable ("token") final String token, HttpServletResponse response) {
     	Session s = SessionManager.createSession( token );
     	
-    	Cookie cookie = new Cookie("sessionKey", s.getKey());  
+    	String ivString = Encryptor.generateIvString();
+        Cookie ivCookie = new Cookie("iv", ivString);
+        ivCookie.setMaxAge(30 * 24 * 60 * 60); // expires in 30 days
+        ivCookie.setSecure(true);
+        ivCookie.setHttpOnly(true);
+        ivCookie.setPath("/"); // global cookie accessible every where
+    	response.addCookie( ivCookie );
+        
+        String sessionKeyCipher = null;
+        try {
+            sessionKeyCipher = Encryptor.encrypt( s.getKey(), ivString );
+        }
+        catch ( InvalidKeyException | NoSuchPaddingException | NoSuchAlgorithmException
+                | InvalidAlgorithmParameterException | BadPaddingException | IllegalBlockSizeException e ) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
+    	Cookie cookie = new Cookie("sessionKeyCipher", sessionKeyCipher);  
     	cookie.setMaxAge(30 * 24 * 60 * 60); // expires in 30 days
     	cookie.setSecure(true);
     	cookie.setHttpOnly(true);
     	cookie.setPath("/"); // global cookie accessible every where
         response.addCookie(cookie);
+
+    	
+
 
     	
 //    	Cookie testCookie = new Cookie("test", "amog");
@@ -57,14 +85,29 @@ public class APIController {
     
     
     @PostMapping ( BASE_PATH + "song/" )
-    public ResponseEntity<String> scrobbleSong(@RequestBody  String req, @CookieValue(value = "sessionKey", defaultValue = "") String key ) {
-        SessionManager.scrobbleSong( req, key );
+    public ResponseEntity<String> scrobbleSong(@RequestBody  String req, @CookieValue(value = "sessionKeyCipher", defaultValue = "") String cipher, 
+            @CookieValue(value = "iv", defaultValue = "") String ivString) {
+        String key = null;
+        try {
+            key = Encryptor.decrypt( cipher, ivString );
+        }
+        catch ( InvalidKeyException | NoSuchPaddingException | NoSuchAlgorithmException
+                | InvalidAlgorithmParameterException | BadPaddingException | IllegalBlockSizeException e ) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
+        boolean successful = SessionManager.scrobbleSong( req, key );
+        if(!successful) {
+            return new ResponseEntity<String>( HttpStatus.NOT_ACCEPTABLE);
+        }
         return new ResponseEntity<String>( HttpStatus.OK );
     }
     
+    
     @PutMapping(BASE_PATH + "reset/")
-    public void scrobbleSong(HttpServletResponse response) {
-        Cookie cookie = new Cookie("sessionKey", null);
+    public void reset(HttpServletResponse response) {
+        Cookie cookie = new Cookie("sessionKeyCipher", null);
         cookie.setMaxAge(0);
         cookie.setSecure(true);
         cookie.setHttpOnly(true);
@@ -72,7 +115,18 @@ public class APIController {
 
         //add cookie to response
         response.addCookie(cookie);
+        
+        Cookie ivCookie = new Cookie("iv", null);
+        ivCookie.setMaxAge(0);
+        ivCookie.setSecure(true);
+        ivCookie.setHttpOnly(true);
+        ivCookie.setPath("/");
+
+        //add cookie to response
+        response.addCookie(ivCookie);
     }
+    
+
     
 
     

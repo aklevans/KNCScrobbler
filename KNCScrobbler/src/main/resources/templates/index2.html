@@ -189,7 +189,14 @@
 				//console.log(combined);
 
 				if($scope.signedIn){
-					$http.post("api/song/", t);
+					$http.post("api/song/", t).then(
+						function(success){
+							
+						},
+						function(rejection){
+							$scope.reset();
+						}
+					);
 				}
 
 			}
