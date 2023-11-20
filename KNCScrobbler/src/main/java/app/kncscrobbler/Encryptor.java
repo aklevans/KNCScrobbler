@@ -107,7 +107,6 @@ public class Encryptor {
 
 
         } catch (IOException ex) {
-            ex.printStackTrace();
             aesKey = System.getenv("AES_KEY");
             
             
@@ -139,7 +138,6 @@ public class Encryptor {
 
 
         } catch (IOException ex) {
-            ex.printStackTrace();
             aesKey = System.getenv("AES_KEY");
             
             
