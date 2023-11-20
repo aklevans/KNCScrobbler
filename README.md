@@ -24,8 +24,5 @@ To unlink your account, click the "Unlink account" button. KNC Scrobbler will no
 account.
 
 # Troubleshooting
-It may take a few seconds for the song to appear on your last.fm profile. This is typically due to traffic on last.fm's servers. 
+See the troubleshooting wiki page: https://github.com/aklevans/KNCScrobbler/wiki/Troubleshooting
 
-Song titles and artists may be a few seconds out of sync with the livestream. This is due to the stream being inconsistently delayed from the actual radio broadcast. Different browsers may have different delay times.
-
-If you encounter duplicate scrobbles on your last.fm account, this may be due to a number of reasons. This is typically caused by last.fm not updating the currently playing song fast enough, which the KNC Scrobbler relies on to scrobble correctly. Refresh your last.fm page (not the knc scrobbler page) after a few seconds and you may see this go away.
