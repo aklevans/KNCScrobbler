@@ -11,6 +11,8 @@
 	src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.js"></script>
     <title>KNC Scrobbler!</title>
   </head>
+  
+  
   <body style="background-color:rgb(0, 0, 0)">
 
     <!-- Option 1: Bootstrap Bundle with Popper -->
@@ -19,28 +21,28 @@
 	<script>
 		// public api key
 		const api_key = "23a4290148e4069d3dbce24cade6b491";
-
+		
 		const api_url_1 = 
 			  "https://wknc.org/wp-json/wknc/v1/now-playing?station=1";
 			  
 		const api_url_2 = 
 			  "https://wknc.org/wp-json/wknc/v1/now-playing?station=2";
-	
+		
 		const hd1_stream_url = "https://ais-edge105-live365-dal02.cdnstream.com/a45877";
 		
 		const hd2_stream_url = "https://ais-edge101-live365-dal02.cdnstream.com/a30009";
 		
 		const default_image = "https://github.com/aklevans/KNCScrobbler/blob/main/KNCScrobbler/src/main/resources/images/centered.png?raw=true";
-
+		
 		function setCookie(name, value) {
 		    // Encode value in order to escape semicolons, commas, and whitespace
 		    var cookie = name + "=" + encodeURIComponent(value);
 		    
-
+		
 		    cookie += "; max-age=" + (10*24*60*60);
 		        
 		    document.cookie = cookie;
-
+		
 		}
 		
 		function getCookie(name) {
@@ -72,7 +74,7 @@
 		
 		var app = angular.module('myApp', []);
 		app.controller('ctrl', function($scope, $http) {
-
+		
 			
 			$scope.linkAccount = function() {
 				window.open("https://www.last.fm/api/auth/?api_key=" + api_key + "&cb=" + window.location.href, '_self');
@@ -81,7 +83,7 @@
 			$scope.startSession = function(){
 				$scope.signedIn = false;
 				$scope.imgLink = default_image;
-
+		
 				var channel = getCookie("channel");
 				if(channel == null || channel === "1"){
 					$scope.channel = 1;
@@ -116,12 +118,12 @@
 						}
 							
 					);
-
+		
 				} else if(getCookie("username") != null){
 					$scope.signedIn = true;
 					$scope.username = getCookie("username");
 				}
-
+		
 			}
 			
 			$scope.reset = function(){
@@ -153,7 +155,7 @@
 								function(response){
 									dat = response.data;
 									var propertyName = '#text'
-
+		
 									try{
 										document.getElementById("imglink").href = dat.track.url;
 										url = dat.track.album.image[3][propertyName];
@@ -178,7 +180,7 @@
 					}		
 				
 				)
-
+		
 			}
 			
 			$scope.scrobbleSong = function(songData, first){
@@ -187,7 +189,7 @@
 				songData.username = getCookie("username");
 				t = JSON.stringify(songData);
 				//console.log(combined);
-
+		
 				if($scope.signedIn){
 					$http.post("api/song/", t).then(
 						function(success){
@@ -198,7 +200,7 @@
 						}
 					);
 				}
-
+		
 			}
 			
 			
@@ -209,7 +211,7 @@
 					document.getElementById("audio2").muted = false;
 					$scope.update(true);
 					setCookie("channel", 2);
-
+		
 				}
 				else{
 					$scope.channel = 1;
@@ -217,8 +219,8 @@
 					document.getElementById("audio2").muted = true;
 					$scope.update(true);
 					setCookie("channel", 1);
-
-
+		
+		
 				}
 			}
 			
@@ -232,12 +234,13 @@
 			$scope.update(true);
 			
 			setInterval(function() {$scope.update(false); }, 90000);
-
+		
 			
 			
 		});
-	
+		
 	</script>
+
 
 	
 	<div class="text-center" ng-app="myApp"
@@ -272,7 +275,7 @@
 
 
 	</div>
-	<footer id="footer" style="position: sticky; bottom: 0; height: 30px;">
+	<footer id="footer" style="position: absolute; bottom: 0; height: 30px; width: 100%">
 		<a href="https://github.com/aklevans/KNCScrobbler" style="color: gray; float: left" target="_blank">Github Repository</a>
 		<a href="https://github.com/aklevans/KNCScrobbler/wiki/Troubleshooting"  style="color: gray; float: right;" target="_blank" >Troubleshooting</a>
 	</footer>

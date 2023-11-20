@@ -11,13 +11,10 @@ public class MappingController {
 
     @GetMapping("/")
     public String index() {
-        return "index2";
+        return "index";
     }
     
-    @GetMapping("/index2")
-    public String index2() {
-        return "index2";
-    }
+
     
 
     
