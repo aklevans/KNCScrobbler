@@ -210,8 +210,8 @@
 				
 				
 				t = JSON.stringify(songData);
-				console.log(songData);
-		
+				console.log(t);
+				
 				if($scope.signedIn){
 					$http.post("api/song/", t).then(
 						function(success){
@@ -254,7 +254,7 @@
 			$scope.startSession();
 			$scope.update(true);
 			
-			setInterval(function() {$scope.update(false); }, 90000);
+			setInterval(function() {$scope.update(false); }, 65000);
 		
 			
 			
