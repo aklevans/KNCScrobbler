@@ -93,6 +93,7 @@
 			$scope.startSession = function(){
 				$scope.signedIn = false;
 				$scope.imgLink = default_image;
+				$scope.song = undefined;
 		
 				var channel = getCookie("channel");
 				if(channel == null || channel === "1"){
@@ -157,9 +158,12 @@
 				// get song 
 				$http.get(url).then(
 					function(response){
+						// scope.song should be last scrobbled song
+						// response is the song to update to
+						$scope.scrobbleSong(response.data, $scope.song, first);
 						$scope.song = response.data;
-						$scope.scrobbleSong($scope.song, first);
-						console.log("scrobble");
+						
+						// update ui
 						$http.get("https://ws.audioscrobbler.com/2.0/?method=track.getInfo&api_key=" + api_key + 
 								"&artist=" + $scope.song.artist + "&track=" + $scope.song.song + "&format=json").then(
 								function(response){
@@ -193,12 +197,20 @@
 		
 			}
 			
-			$scope.scrobbleSong = function(songData, first){
+			$scope.scrobbleSong = function(songData, oldSongData, first){
 				songData.first = first;
 				songData.key = null;
 				songData.username = getCookie("username");
+				songData.oldSong = null;
+				songData.oldArtist = null;
+				if(oldSongData !== undefined){
+					songData.oldSong = oldSongData.song;
+					songData.oldArtist = oldSongData.artist;
+				}
+				
+				
 				t = JSON.stringify(songData);
-				//console.log(combined);
+				console.log(songData);
 		
 				if($scope.signedIn){
 					$http.post("api/song/", t).then(
@@ -239,7 +251,6 @@
 			//main
 			$scope.songName = "pee";
 			$scope.artist = "poo";
-			
 			$scope.startSession();
 			$scope.update(true);
 			

@@ -12,11 +12,14 @@ import de.umass.lastfm.scrobble.ScrobbleResult;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Properties;
 
 
-
+/**
+ * This class p
+ */
 public class SessionManager {
 
     
@@ -47,12 +50,20 @@ public class SessionManager {
             
             
         }
-        
-        return Authenticator.getSession( token, key, secret );
+        ArrayList<Integer> arraylist;
 
+        return Authenticator.getSession( token, key, secret );
         
     }
     
+    /**
+     * This method gets a session object representing a previously created session that is tied to a specific user.
+     * Sessions are identified by the user's session key which was generated when the session was originally created.
+     * The corresponding user's username must be provided as a second identifier.
+     * @param sessionKey the session's unique key
+     * @param username the username of the session's user
+     * @return the session matching the identifiers
+     */
     public static Session getSessionFromKey(String sessionKey, String username) {
     	String api_key;
         String secret;
@@ -111,62 +122,7 @@ public class SessionManager {
     	}
     }
     
-    /**
-     * Sets the currently playing song on Last.fm. Scrobbles the currently playing song if it has not already been scrobbled
-     * and if this isnt the first time the method has been called since the page has been refreshed (This avoids duplicate scrobbling
-     * when changing from HD1 to HD2 and back again)
-     * 
-     * @param title the title of the song to start playing
-     * @param artist the artist of the song to start playing
-     * @param session the authenticated session
-     * @param isFirst true if this is the first time the method has been called since refreshing the page
-     */
-    public static boolean startNext(String title, String artist, Session session, boolean isFirst) {
-    	
 
-        //check if song has changed 
-        // NOTE: this assumes the same song will never be played twice iS a row!!!!! 
-    	if(session == null) {
-    		return false;
-    	}
-        Track t = getLastPlayed(session);
-        Track t2 = getLastLastPlayed(session);
-        if(t != null && (!t.getName().trim().toUpperCase().equals( title.toUpperCase() ) || !t.getArtist().trim().toUpperCase().equals( artist.toUpperCase() )) ) {
-        	
-    		System.out.println("old Artist: [" + t.getArtist() + "] New Artist: [" + artist + "]");
-    		System.out.println("Artist Match:" + t.getArtist().trim().equals( artist.toUpperCase() ));
-        	System.out.println("old Song: [" + t.getName() + "] New Song: [" + title + "]");
-        	System.out.println("Song Match:" + t.getName().trim().toUpperCase().equals( title.toUpperCase() ));
-        	
-        	//scrobble last track that was playing
-        	if(!isFirst && t.isNowPlaying()) {
-        		System.out.println("t2: " + t2.getName());
-        		if(t2 != null && !t2.equals(t)) {
-        			int now = (int) (System.currentTimeMillis() / 1000);
-                    ScrobbleResult result2 = Track.scrobble(t.getArtist(), t.getName(), now, session);
-                    System.out.println("ok: " + (result2.isSuccessful() && !result2.isIgnored()));
-        		}
-        	}
-        	
-        	// set now playing to new song
-            System.out.println("updating to:" + title);
-        }
-        ScrobbleResult result = Track.updateNowPlaying(artist, title, session);
-        
-
-        try {
-        	System.out.println("CurrentlyPlaying:" + getLastPlayed(session).getName());
-        }
-        catch(NullPointerException e) {
-        	
-        }
-        System.out.print(result.toString());
-        System.out.println("ok: " + (result.isSuccessful() && !result.isIgnored()));
-        
-        //invalid authentication
-        return result.getErrorCode() != 9;
-
-    }
     
     /**
      * Initiates a scrobble
@@ -176,7 +132,57 @@ public class SessionManager {
     	Gson gson = new Gson();
     	ScrobbleRequest s = gson.fromJson(str, ScrobbleRequest.class);
     	s.setKey( key );
-    	return startNext( s.getSong().trim() , s.getArtist().trim(), s.getSession(), s.isFirst() );
+    	
+    	
+    	Session session = s.getSession();
+    	String artist = s.getArtist();
+    	String oldArtist = s.getOldArtist();
+    	String title = s.getSong().trim();
+    	String oldTitle = s.getOldSong();
+    	
+    	if(session == null) {
+    		return false;
+    	}
+
+        
+        
+        if(!s.isFirst() && s.getOldSong() != null && oldArtist != null && !title.trim().toLowerCase().equals(oldTitle.trim().toLowerCase()) && !artist.trim().toLowerCase().equals(oldArtist.trim().toLowerCase()) ) {
+        	
+//    		System.out.println("old Artist: [" + t.getArtist() + "] New Artist: [" + artist + "]");
+//    		System.out.println("Artist Match:" + t.getArtist().trim().equals( artist.toUpperCase() ));
+//        	System.out.println("old Song: [" + t.getName() + "] New Song: [" + title + "]");
+//        	System.out.println("Song Match:" + t.getName().trim().toUpperCase().equals( title.toUpperCase() ));
+        	
+        	System.out.println("Scrobbled: " + oldTitle + " " + oldArtist);
+			int now = (int) (System.currentTimeMillis() / 1000);
+            ScrobbleResult result2 = Track.scrobble(oldArtist, oldTitle, now, session);
+            System.out.println("ok: " + (result2.isSuccessful() && !result2.isIgnored()));
+    			
+
+    		
+        	
+        	// set now playing to new song
+            System.out.println("updating to:" + title);
+        }
+        else {
+        	System.out.println("Did not scrobble!");
+        }
+        
+        ScrobbleResult result = Track.updateNowPlaying(artist, title, session);
+        System.out.println("Updated Now Playing!");
+
+        try {
+        	System.out.println("CurrentlyPlaying: " + getLastPlayed(session).getName());
+        }
+        catch(NullPointerException e) {
+        	
+        }
+        
+        System.out.print(result.toString());
+        System.out.println("ok: " + (result.isSuccessful() && !result.isIgnored()));
+        
+        //invalid authentication
+        return result.getErrorCode() != 9;
     }
     
 

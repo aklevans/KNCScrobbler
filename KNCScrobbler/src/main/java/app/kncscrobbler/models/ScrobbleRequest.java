@@ -13,13 +13,34 @@ public class ScrobbleRequest {
     private String start;
     private String timezone;
     
-
+    private String oldSong;
+    private String oldArtist;
+    
+    
+    
+    
 	private String key;
 	private String username;
 	boolean first;
     
 
 	
+	public String getOldSong() {
+		return oldSong;
+	}
+
+	public void setOldSong(String oldSong) {
+		this.oldSong = oldSong;
+	}
+
+	public String getOldArtist() {
+		return oldArtist;
+	}
+
+	public void setOldArtist(String oldArtist) {
+		this.oldArtist = oldArtist;
+	}
+
 	public String getUsername() {
 	    return username;
 	}
