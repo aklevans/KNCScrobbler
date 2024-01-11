@@ -149,24 +149,17 @@ public class SessionManager {
         
         if(!s.isFirst() && s.getOldSong() != null && oldArtist != null && !title.trim().toLowerCase().equals(oldTitle.trim().toLowerCase()) && !artist.trim().toLowerCase().equals(oldArtist.trim().toLowerCase()) ) {
         	
-//    		System.out.println("old Artist: [" + t.getArtist() + "] New Artist: [" + artist + "]");
-//    		System.out.println("Artist Match:" + t.getArtist().trim().equals( artist.toUpperCase() ));
-//        	System.out.println("old Song: [" + t.getName() + "] New Song: [" + title + "]");
-//        	System.out.println("Song Match:" + t.getName().trim().toUpperCase().equals( title.toUpperCase() ));
+
         	
         	System.out.println("Scrobbled: " + oldTitle + " " + oldArtist);
 			int now = (int) (System.currentTimeMillis() / 1000);
             ScrobbleResult result2 = Track.scrobble(oldArtist, oldTitle, now, session);
             System.out.println("ok: " + (result2.isSuccessful() && !result2.isIgnored()));
     			
-
-    		
-        	
-        	// set now playing to new song
-            System.out.println("updating to:" + title);
+            System.out.println("updating to: " + title);
         }
         else {
-        	System.out.println("Did not scrobble!");
+        	System.out.println("Did not scrobble " + title + "!");
         }
         
         ScrobbleResult result = Track.updateNowPlaying(artist, title, session);
