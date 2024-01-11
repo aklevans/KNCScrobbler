@@ -10,6 +10,7 @@ import de.umass.lastfm.Track;
 import de.umass.lastfm.User;
 import de.umass.lastfm.scrobble.ScrobbleResult;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -80,12 +81,12 @@ public class SessionManager {
 
 
         } catch (IOException ex) {
-            ex.printStackTrace();
+            //ex.printStackTrace();
             api_key = System.getenv("KEY");
             secret = System.getenv("SECRET");
             
             
-        }
+        } 
         
         return Session.createSession(api_key, secret, sessionKey, username, false);
     }
@@ -169,10 +170,10 @@ public class SessionManager {
         }
         
         ScrobbleResult result = Track.updateNowPlaying(artist, title, session);
-        System.out.println("Updated Now Playing!");
+        //System.out.println("Updated Now Playing!");
 
         try {
-        	System.out.println("CurrentlyPlaying: " + getLastPlayed(session).getName());
+        	//System.out.println("CurrentlyPlaying: " + getLastPlayed(session).getName());
         }
         catch(NullPointerException e) {
         	
